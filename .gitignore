@@ -1,3 +1,4 @@
 *.swp
 *.pyc
 env
+cryptsy_client.egg-info
