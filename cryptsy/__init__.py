@@ -1,52 +1,80 @@
-import requests
 import time
+import hmac
+from hashlib import sha512
+from urllib import urlencode
+import requests
 
-def get_all_markets():
-    r = requests.get('http://pubapi.cryptsy.com/api.php?method=marketdatav2')
-    print r.headers
-    try:
+class Cryptsy:
+    def __init__(self, key, secret):
+        self.key = key
+        self.secret = secret
+
+    def get_request_params(self, method, data):
+        payload = {
+            'method': method,
+            'nonce': int(time.time())
+        }
+        payload.update(data)
+        signature = hmac.new(self.secret, urlencode(payload), 
+            sha512).hexdigest()
+        
+        headers = {
+            'Sign': signature, 
+            'Key': self.key
+        }
+        return (payload, headers)
+
+    def _perform_request(self, method, data={}):
+        payload, headers = self.get_request_params(method, data)
+        r = requests.post('https://www.cryptsy.com/api', data=payload, headers=headers)
+        print r.headers
         content = r.json()
-        markets = content['return']['markets']
-        return {label: Market(m) for label, m in markets.iteritems()}
-    except:
-        print r.text
-    return {}
+        return content['return']
+        
+    def get_info(self):
+        pass
 
-class Market:
-    def __init__(self, raw_data):
-        self.label = raw_data['label']
-        self.trades = set([Market.format_trade(t) for t in raw_data['recenttrades']])
+    def get_markets(self):
+        return self._perform_request('getmarkets')
 
-    @staticmethod
-    def format_trade(trade):
-        return (trade['time'], trade['price'])
+    def get_my_transaction(self):
+        pass
 
-    @staticmethod
-    def trade_diff(old, new):
-        #print "OLD"
-        #print old.trades
-        #print "NEW"
-        #print new.trades
-        return new.trades - old.trades
+    def get_trades(self, market_id):
+        return self._perform_request('markettrades', {'marketid': market_id}) 
 
-def trade_stream():
-    old_markets = get_all_markets()
-    for label, m in old_markets.iteritems():
-        for trade in m.trades:
-            yield (label, trade)
+    def get_orders(self, market_id):
+        return self._perform_request('marketorders', {'marketid': market_id}) 
 
-    #while True:
-    for i in xrange(10):
-        print "Request %d" % i
-        new_markets = get_all_markets()
-        for label in new_markets:
-            if label in old_markets:
-                trades = Market.trade_diff(old_markets[label], 
-                    new_markets[label])
-            else:
-                trades = new_markets[label].trades
+    def get_my_trades(self, market_id, limit=200)
+        return self._perform_request('mytrades', {'marketid': market_id, 'limit': limit})
 
-            for t in trades:
-                yield (label, t)
-        old_markets = new_markets
-        time.sleep(10) 
+    def get_all_my_trades(self):
+        pass
+
+    def get_my_orders(self, market_id):
+        pass
+
+    def get_depth(self, market_id):
+        pass
+
+    def get_all_my_orders(self):
+        pass
+
+    def create_order(self, market_id, order_type, quantity, price):
+        pass
+
+    def cancel_order(self, order_id):
+        pass
+
+    def cancel_market_orders(self, market_id):
+        pass
+
+    def cancel_all_orders(self):
+        pass
+
+    def calculate_fees(self, order_type, quantity, price):
+        pass
+
+    def generate_new_address(self, currency):
+        pass
