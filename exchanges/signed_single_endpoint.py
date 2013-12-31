@@ -2,6 +2,7 @@ import time
 import hmac
 from hashlib import sha512
 from urllib import urlencode
+from decimal import Decimal
 
 import requests
 
@@ -30,5 +31,5 @@ class SignedSingleEndpoint(object):
     def perform_request(self, method, data={}):
         payload, headers = self.get_request_params(method, data)
         r = requests.post(type(self).API_ENDPOINT, data=payload, headers=headers)
-        content = r.json()
+        content = r.json(parse_float=Decimal)
         return content['return']
