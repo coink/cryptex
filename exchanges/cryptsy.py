@@ -18,6 +18,7 @@ class Cryptsy(Exchange):
         self.key = key
         self.secret = secret
         self.timezone = None
+        self.market_currency_map = None
 
     def _get_timezone(self):
         """
@@ -40,6 +41,20 @@ class Cryptsy(Exchange):
         cryptsy_time = self._get_timezone()
         aware_time = cryptsy_time.normalize(cryptsy_time.localize(naive_time)).astimezone(pytz.utc)
         return aware_time
+
+    def _get_currencies(self, market_id):
+        """
+        Cryptsy uses references to market_ids which uniquely identify markets.
+        Given a market_id, this function returns a two-tuple containing the currencies involved.
+        """
+        if self.market_currency_map is None:
+            markets = self.get_markets()
+            self.market_currency_map = {
+                m['marketid']:
+                (m['primary_currency_code'], m['secondary_currency_code'])
+                for m in markets
+            }
+        return self.market_currency_map[market_id]
 
     def get_request_params(self, method, data):
         payload = {
@@ -86,11 +101,13 @@ class Cryptsy(Exchange):
         else:
             trade_type = Trade.SELL
 
+        primary, secondary = self._get_currencies(trade['marketid'])
+
         return Trade(
             trade_id = trade['tradeid'],
             trade_type = trade_type,
-            primary_curr = None,
-            secondary_curr = None,
+            primary_curr = primary,
+            secondary_curr = secondary,
             time = self._convert_timestamp(trade['datetime']),
             order_id = trade['order_id'],
             amount = Decimal(trade['quantity']),
