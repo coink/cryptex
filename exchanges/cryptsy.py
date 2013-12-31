@@ -5,6 +5,7 @@ from urllib import urlencode
 import requests
 
 from exchanges.exchange import Exchange
+from exchanges.trade import Trade
 
 API_ENDPOINT = 'https://www.cryptsy.com/api'
 
@@ -30,7 +31,7 @@ class Cryptsy(Exchange):
 
     def _perform_request(self, method, data={}):
         payload, headers = self.get_request_params(method, data)
-        r = requests.post(ENDPOINT, data=payload, headers=headers)
+        r = requests.post(API_ENDPOINT, data=payload, headers=headers)
         content = r.json()
         return content['return']
         
@@ -49,11 +50,31 @@ class Cryptsy(Exchange):
     def get_orders(self, market_id):
         return self._perform_request('marketorders', {'marketid': market_id}) 
 
-    def get_my_trades(self, market_id, limit=200):
-        return self._perform_request('mytrades', {'marketid': market_id, 'limit': limit})
+    #def get_my_trades(self, market_id, limit=200):
+    #    return self._perform_request('mytrades', {'marketid': market_id, 'limit': limit})
 
-    def get_all_my_trades(self):
-        return self._perform_request('allmytrades')
+    @staticmethod
+    def _format_trade(trade):
+        if trade['tradetype'] == 'Buy':
+            trade_type = Trade.BUY
+        else:
+            trade_type = Trade.SELL
+
+        return Trade(
+            trade_id = trade['tradeid'],
+            trade_type = trade_type,
+            primary_curr = None,
+            secondary_curr = None,
+            time = trade['datetime'],
+            order_id = trade['order_id'],
+            amount = trade['quantity'],
+            price = trade['tradeprice'],
+            fee = trade['fee']
+        )
+
+    def get_my_trades(self):
+        trades = self._perform_request('allmytrades')
+        return (trades, [Cryptsy._format_trade(t) for t in trades])
 
     def get_my_orders(self, market_id):
         return self._perform_request('myorders', {'marketid': market_id})
