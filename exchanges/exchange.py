@@ -1,4 +1,4 @@
-class Exchange:
+class Exchange(object):
     def get_my_orders(self):
         raise NotImplementedError
 

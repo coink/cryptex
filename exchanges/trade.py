@@ -1,4 +1,4 @@
-class Trade:
+class Trade(object):
     BUY = 0
     SELL = 1
     def __init__(self, trade_id, trade_type, primary_curr, secondary_curr, 
