@@ -6,6 +6,8 @@ from decimal import Decimal
 
 import requests
 
+from exchanges.exception import APIException
+
 class SignedSingleEndpoint(object):
     """
     BTC-e and Cryptsy both employ the same API auth scheme and format.  There 
@@ -32,4 +34,7 @@ class SignedSingleEndpoint(object):
         payload, headers = self.get_request_params(method, data)
         r = requests.post(type(self).API_ENDPOINT, data=payload, headers=headers)
         content = r.json(parse_float=Decimal)
-        return content['return']
+        if content['success'] == 1:
+            return content['return']
+        else:
+            raise APIException(content['error'])
