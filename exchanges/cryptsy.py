@@ -96,8 +96,9 @@ class Cryptsy(Exchange, SignedSingleEndpoint):
     def get_my_orders(self, market_id):
         return self.perform_request('myorders', {'marketid': market_id})
 
-    def get_all_my_orders(self):
-        return self.perform_request('allmyorders')
+    def get_my_open_orders(self):
+        orders = self.perform_request('allmyorders')
+        return orders
 
     def get_depth(self, market_id):
         return self.perform_request('depth', {'marketid': market_id})

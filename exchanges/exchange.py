@@ -1,5 +1,5 @@
 class Exchange(object):
-    def get_my_orders(self):
+    def get_my_open_orders(self):
         raise NotImplementedError
 
     def get_my_trades(self):
