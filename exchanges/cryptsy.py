@@ -4,9 +4,11 @@ from hashlib import sha512
 from urllib import urlencode
 import requests
 
+from exchanges.exchange import Exchange
+
 API_ENDPOINT = 'https://www.cryptsy.com/api'
 
-class Cryptsy:
+class Cryptsy(Exchange):
     def __init__(self, key, secret):
         self.key = key
         self.secret = secret
@@ -47,7 +49,7 @@ class Cryptsy:
     def get_orders(self, market_id):
         return self._perform_request('marketorders', {'marketid': market_id}) 
 
-    def get_my_trades(self, market_id, limit=200)
+    def get_my_trades(self, market_id, limit=200):
         return self._perform_request('mytrades', {'marketid': market_id, 'limit': limit})
 
     def get_all_my_trades(self):
@@ -65,9 +67,9 @@ class Cryptsy:
     def create_order(self, market_id, order_type, quantity, price):
         params = {
             'marketid': market_id,
-            'ordertype', order_type,
+            'ordertype': order_type,
             'quantity': quantity,
-            'price', price
+            'price': price
         }
         return self._perform_request('myorders', params)
 
@@ -82,9 +84,9 @@ class Cryptsy:
 
     def calculate_fees(self, order_type, quantity, price):
         params = {
-            'ordertype', order_type,
+            'ordertype': order_type,
             'quantity': quantity,
-            'price', price
+            'price': price
         }
         return self._perform_request('calculatefees', params)
 
