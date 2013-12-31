@@ -2,7 +2,10 @@ import time
 import hmac
 from hashlib import sha512
 from urllib import urlencode
+import datetime
+
 import requests
+import pytz
 
 from exchanges.exchange import Exchange
 from exchanges.trade import Trade
@@ -13,6 +16,29 @@ class Cryptsy(Exchange):
     def __init__(self, key, secret):
         self.key = key
         self.secret = secret
+        self.timezone = None
+
+    def _get_timezone(self):
+        """
+        Cryptsy seems to return all its timestamps in Eastern Standard Time, 
+        instead of doing the sane thing and returning UTC. But, the API does 
+        not make this a guarantee, so we do a request for getinfo and get the 
+        timezone then. We'll cache it, too.
+        """
+        if self.timezone is not None:
+            return self.timezone
+
+        info = self.get_info()
+        return pytz.timezone(info['servertimezone'])
+
+    def _convert_timestamp(self, time_str):
+        """
+        Convert cryptsy timestamp to timezone-aware datetime object in UTC
+        """
+        naive_time = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
+        cryptsy_time = self._get_timezone()
+        aware_time = cryptsy_time.normalize(cryptsy_time.localize(naive_time)).astimezone(pytz.utc)
+        return aware_time
 
     def get_request_params(self, method, data):
         payload = {
@@ -53,8 +79,7 @@ class Cryptsy(Exchange):
     #def get_my_trades(self, market_id, limit=200):
     #    return self._perform_request('mytrades', {'marketid': market_id, 'limit': limit})
 
-    @staticmethod
-    def _format_trade(trade):
+    def _format_trade(self, trade):
         if trade['tradetype'] == 'Buy':
             trade_type = Trade.BUY
         else:
@@ -65,7 +90,7 @@ class Cryptsy(Exchange):
             trade_type = trade_type,
             primary_curr = None,
             secondary_curr = None,
-            time = trade['datetime'],
+            time = self._convert_timestamp(trade['datetime']),
             order_id = trade['order_id'],
             amount = trade['quantity'],
             price = trade['tradeprice'],
@@ -74,7 +99,7 @@ class Cryptsy(Exchange):
 
     def get_my_trades(self):
         trades = self._perform_request('allmytrades')
-        return (trades, [Cryptsy._format_trade(t) for t in trades])
+        return (trades, [self._format_trade(t) for t in trades])
 
     def get_my_orders(self, market_id):
         return self._perform_request('myorders', {'marketid': market_id})
