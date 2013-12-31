@@ -3,6 +3,7 @@ import hmac
 from hashlib import sha512
 from urllib import urlencode
 import datetime
+from decimal import Decimal
 
 import requests
 import pytz
@@ -92,9 +93,9 @@ class Cryptsy(Exchange):
             secondary_curr = None,
             time = self._convert_timestamp(trade['datetime']),
             order_id = trade['order_id'],
-            amount = trade['quantity'],
-            price = trade['tradeprice'],
-            fee = trade['fee']
+            amount = Decimal(trade['quantity']),
+            price = Decimal(trade['tradeprice']),
+            fee = Decimal(trade['fee'])
         )
 
     def get_my_trades(self):
