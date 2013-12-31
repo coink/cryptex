@@ -5,6 +5,7 @@ import pytz
 
 from exchanges.exchange import Exchange
 from exchanges.trade import Trade
+from exchanges.order import Order
 from exchanges.signed_single_endpoint import SignedSingleEndpoint
 
 class Cryptsy(Exchange, SignedSingleEndpoint):
@@ -96,9 +97,26 @@ class Cryptsy(Exchange, SignedSingleEndpoint):
     def get_my_orders(self, market_id):
         return self.perform_request('myorders', {'marketid': market_id})
 
+    def _format_order(self, order):
+        if order['ordertype'] == 'Buy':
+            order_type = Trade.BUY
+        else:
+            order_type = Trade.SELL
+
+        primary, secondary = self._get_currencies(order['marketid'])
+        return Order(
+            order_id = order['orderid'],
+            order_type = order_type,
+            primary_curr = primary,
+            secondary_curr = secondary,
+            time = self._convert_timestamp(order['created']),
+            amount = Decimal(order['quantity']),
+            price = Decimal(order['price'])
+        )
+
     def get_my_open_orders(self):
         orders = self.perform_request('allmyorders')
-        return orders
+        return [self._format_order(o) for o in orders]
 
     def get_depth(self, market_id):
         return self.perform_request('depth', {'marketid': market_id})
