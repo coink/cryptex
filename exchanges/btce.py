@@ -24,11 +24,13 @@ class BTCE(Exchange, SignedSingleEndpoint):
         trade_time = pytz.utc.localize(datetime.datetime.utcfromtimestamp(
             trade['timestamp']))
 
+        primary, secondary = trade['pair'].split('_')
+
         return Trade(
             trade_id = trade_id,
             trade_type = trade_type,
-            primary_curr = None,
-            secondary_curr = None,
+            primary_curr = primary,
+            secondary_curr = secondary,
             time = trade_time,
             order_id = trade['order_id'],
             amount = trade['amount'],
@@ -37,5 +39,4 @@ class BTCE(Exchange, SignedSingleEndpoint):
 
     def get_my_trades(self):
         trades = self.perform_request('TradeHistory')
-        f_trades = [BTCE._format_trade(t_id, t) for t_id, t in trades.iteritems()]
-        return (trades, f_trades)
+        return [BTCE._format_trade(t_id, t) for t_id, t in trades.iteritems()]
