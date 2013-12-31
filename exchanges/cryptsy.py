@@ -91,7 +91,7 @@ class Cryptsy(Exchange, SignedSingleEndpoint):
 
     def get_my_trades(self):
         trades = self.perform_request('allmytrades')
-        return (trades, [self._format_trade(t) for t in trades])
+        return [self._format_trade(t) for t in trades]
 
     def get_my_orders(self, market_id):
         return self.perform_request('myorders', {'marketid': market_id})
