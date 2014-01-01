@@ -74,3 +74,7 @@ class BTCE(Exchange, SignedSingleEndpoint):
     def get_my_open_orders(self):
         orders = self.perform_request('ActiveOrders')
         return [BTCE._format_order(o_id, o) for o_id, o in orders.iteritems()]
+
+    def cancel_order(self, order_id):
+        self.perform_request('CancelOrder', {'order_id': order_id})
+        return None

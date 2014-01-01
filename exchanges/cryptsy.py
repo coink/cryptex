@@ -131,7 +131,8 @@ class Cryptsy(Exchange, SignedSingleEndpoint):
         return self.perform_request('myorders', params)
 
     def cancel_order(self, order_id):
-        return self.perform_request('cancelorder', {'orderid': order_id})
+        self.perform_request('cancelorder', {'orderid': order_id})
+        return None
 
     def cancel_market_orders(self, market_id):
         return self.perform_request('cancelmarketorders', {'marketid': market_id})
