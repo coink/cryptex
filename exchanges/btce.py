@@ -19,7 +19,7 @@ class BTCE(Exchange, SignedSingleEndpoint):
             return super(BTCE, self).perform_request(method, data)
         except APIException as e:
             if e.message == 'no orders':
-                return []
+                return {}
             else:
                 raise e
 
