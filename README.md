@@ -6,15 +6,15 @@ Python library that aims to provide a uniform access layer for cryptocurrency ex
 Supported Exchanges
 -------------------
 
-[x] Cryptsy
-[x] BTC-e
-[ ] Bter
+[x] Cryptsy  
+[x] BTC-e  
+[ ] Bter  
 
 Supported Methods
 -----------------
 
-[x] `get_my_open_orders()`
-[x] `get_my_trades()`
-[ ] `cancel_order(order_id)`
-[ ] `buy(from, to, quantity, price)`
-[ ] `sell(from, to, quantity, price)`
+[x] `get_my_open_orders()`  
+[x] `get_my_trades()`  
+[ ] `cancel_order(order_id)`  
+[ ] `buy(from, to, quantity, price)`  
+[ ] `sell(from, to, quantity, price)`  
