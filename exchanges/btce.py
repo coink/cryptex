@@ -73,5 +73,4 @@ class BTCE(Exchange, SignedSingleEndpoint):
 
     def get_my_open_orders(self):
         orders = self.perform_request('ActiveOrders')
-        f_orders = [BTCE._format_order(o_id, o) for o_id, o in orders.iteritems()]
-        return (orders, f_orders)
+        return [BTCE._format_order(o_id, o) for o_id, o in orders.iteritems()]
