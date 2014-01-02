@@ -78,3 +78,38 @@ class BTCE(Exchange, SignedSingleEndpoint):
     def cancel_order(self, order_id):
         self.perform_request('CancelOrder', {'order_id': order_id})
         return None
+
+    def get_markets(self):
+        """
+        BTC-e doesn't seem to expose its list of markets via its API. It's all 
+        reluctantly hard-coded here.
+        """
+        return [
+            ('BTC', 'USD'),
+            ('BTC', 'RUR'),
+            ('BTC', 'EUR'),
+
+            ('LTC', 'BTC'),
+            ('LTC', 'USD'),
+            ('LTC', 'RUR'),
+            ('LTC', 'EUR'),
+
+            ('NMC', 'BTC'),
+            ('NMC', 'USD'),
+
+            ('NVC', 'BTC'),
+            ('NVC', 'USD'),
+
+            ('USD', 'RUR'),
+
+            ('EUR', 'USD'),
+
+            ('TRC', 'BTC'),
+
+            ('PPC', 'BTC'),
+            ('PPC', 'USD'),
+
+            ('FTC', 'BTC'),
+
+            ('XPM', 'BTC'),
+        ]

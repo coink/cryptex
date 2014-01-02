@@ -13,6 +13,7 @@ Supported Exchanges
 Supported Methods
 -----------------
 
+[x] `get_markets()`  
 [x] `get_my_open_orders()`  
 [x] `get_my_trades()`  
 [x] `cancel_order(order_id)`  

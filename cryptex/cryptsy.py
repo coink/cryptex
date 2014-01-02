@@ -56,7 +56,11 @@ class Cryptsy(Exchange, SignedSingleEndpoint):
         return self.perform_request('getinfo')
 
     def get_markets(self):
-        return self.perform_request('getmarkets')
+        markets = self.perform_request('getmarkets')
+        return [
+            (m['primary_currency_code'], m['secondary_currency_code']) 
+            for m in markets
+        ]
 
     def get_my_transactions(self):
         return self.perform_request('mytransactions')
