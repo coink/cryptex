@@ -1,5 +1,5 @@
-Cryptex: Crypto-currency Exchange Client
-========================================
+Cryptex: Cryptocurrency Exchange Client
+=======================================
 
 Python library that aims to provide a uniform access layer for cryptocurrency exchanges. 
 
