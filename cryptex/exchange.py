@@ -28,8 +28,8 @@ class Exchange(object):
         """
         raise NotImplementedError
     
-    def buy(self, frm, to, quantity, price):
+    def buy(self, market, quantity, price):
         raise NotImplementedError
 
-    def sell(self, frm, to, quantity, price):
+    def sell(self, market, quantity, price):
         raise NotImplementedError
