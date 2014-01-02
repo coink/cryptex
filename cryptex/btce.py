@@ -35,13 +35,13 @@ class BTCE(Exchange, SignedSingleEndpoint):
         else:
             trade_type = Trade.SELL
 
-        primary, secondary = trade['pair'].split('_')
+        base, counter = trade['pair'].split('_')
 
         return Trade(
             trade_id = trade_id,
             trade_type = trade_type,
-            primary_curr = primary,
-            secondary_curr = secondary,
+            base_currency = base,
+            counter_currency = counter,
             time = BTCE._format_timestamp(trade['timestamp']),
             order_id = trade['order_id'],
             amount = trade['amount'],
@@ -59,13 +59,13 @@ class BTCE(Exchange, SignedSingleEndpoint):
         else:
             order_type = Trade.SELL
 
-        primary, secondary = order['pair'].split('_')
+        base, counter = order['pair'].split('_')
 
         return Order(
             order_id = order_id,
             order_type = order_type,
-            primary_curr = primary,
-            secondary_curr = secondary,
+            base_currency = base,
+            counter_currency = counter,
             time = BTCE._format_timestamp(order['timestamp_created']),
             amount = order['amount'],
             price = order['rate']

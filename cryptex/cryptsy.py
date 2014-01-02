@@ -76,13 +76,13 @@ class Cryptsy(Exchange, SignedSingleEndpoint):
         else:
             trade_type = Trade.SELL
 
-        primary, secondary = self._get_currencies(trade['marketid'])
+        base, counter = self._get_currencies(trade['marketid'])
 
         return Trade(
             trade_id = trade['tradeid'],
             trade_type = trade_type,
-            primary_curr = primary,
-            secondary_curr = secondary,
+            base_currency = base,
+            counter_currency = counter,
             time = self._convert_timestamp(trade['datetime']),
             order_id = trade['order_id'],
             amount = Decimal(trade['quantity']),
@@ -103,12 +103,13 @@ class Cryptsy(Exchange, SignedSingleEndpoint):
         else:
             order_type = Trade.SELL
 
-        primary, secondary = self._get_currencies(order['marketid'])
+        base, counter = self._get_currencies(order['marketid'])
+
         return Order(
             order_id = order['orderid'],
             order_type = order_type,
-            primary_curr = primary,
-            secondary_curr = secondary,
+            base_currency = base,
+            counter_currency = counter,
             time = self._convert_timestamp(order['created']),
             amount = Decimal(order['quantity']),
             price = Decimal(order['price'])
