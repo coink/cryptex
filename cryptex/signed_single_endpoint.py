@@ -34,6 +34,14 @@ class SignedSingleEndpoint(object):
         payload, headers = self.get_request_params(method, data)
         r = requests.post(type(self).API_ENDPOINT, data=payload, headers=headers)
         content = r.json(parse_float=Decimal)
+
+        # Cryptsy's createorder response is stupidly broken
+        if method == 'createorder':
+            content['return'] = {
+                'orderid': content['orderid'],
+                'moreinfo': content['moreinfo']
+            }
+
         # Cryptsy returns success as a string, BTC-e as a int
         if int(content['success']) == 1:
             return content['return']

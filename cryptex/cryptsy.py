@@ -15,6 +15,7 @@ class Cryptsy(Exchange, SignedSingleEndpoint):
         self.secret = secret
         self.timezone = None
         self.market_currency_map = None
+        self.pair_market_map = None
 
     def _get_timezone(self):
         """
@@ -38,11 +39,7 @@ class Cryptsy(Exchange, SignedSingleEndpoint):
         aware_time = cryptsy_time.normalize(cryptsy_time.localize(naive_time)).astimezone(pytz.utc)
         return aware_time
 
-    def _get_currencies(self, market_id):
-        """
-        Cryptsy uses references to market_ids which uniquely identify markets.
-        Given a market_id, this function returns a two-tuple containing the currencies involved.
-        """
+    def _get_market_currency_map(self):
         if self.market_currency_map is None:
             markets = self.perform_request('getmarkets')
             self.market_currency_map = {
@@ -50,7 +47,27 @@ class Cryptsy(Exchange, SignedSingleEndpoint):
                 (m['primary_currency_code'], m['secondary_currency_code'])
                 for m in markets
             }
-        return self.market_currency_map[market_id]
+        return self.market_currency_map
+
+    def _get_pair_market_map(self):
+        if self.pair_market_map is None:
+            markets = self.perform_request('getmarkets')
+            self.pair_market_map = {
+                (m['primary_currency_code'], m['secondary_currency_code']):
+                m['marketid']
+                for m in markets
+            }
+        return self.pair_market_map
+
+    def _get_currencies(self, market_id):
+        """
+        Cryptsy uses references to market_ids which uniquely identify markets.
+        Given a market_id, this function returns a two-tuple containing the currencies involved.
+        """
+        return self._get_market_currency_map()[market_id]
+
+    def _get_market_id(self, pair):
+        return self._get_pair_market_map()[pair]
 
     def _get_info(self):
         return self.perform_request('getinfo')
@@ -111,3 +128,23 @@ class Cryptsy(Exchange, SignedSingleEndpoint):
     def cancel_order(self, order_id):
         self.perform_request('cancelorder', {'orderid': order_id})
         return None
+
+
+    def _create_order(self, market_id, order_type, quantity, price):
+        params = {
+            'marketid': market_id,
+            'ordertype': order_type,
+            'quantity': quantity,
+            'price': price
+        }
+        return self.perform_request('createorder', params)
+
+    def buy(self, market, quantity, price):
+        market_id = self._get_market_id(market)
+        response = self._create_order(market_id, 'Buy', quantity, price)
+        return response['orderid']
+
+    def sell(self, market, quantity, price):
+        market_id = self._get_market_id(market)
+        response = self._create_order(market_id, 'Sell', quantity, price)
+        return response['orderid']
