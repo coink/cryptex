@@ -1,10 +1,10 @@
 from distutils.core import setup
 setup(
-    name='exchange-client',
+    name='cryptex',
     version='0.1',
     author='Chris LaRose',
     author_email='cjlarose@gmail.com',
-    packages=['exchanges'],
+    packages=['cryptex'],
     install_requires=[
         'requests>=2.1.0,<3.0',
         'pytz>=2013.8'

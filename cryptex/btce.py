@@ -2,11 +2,11 @@ import datetime
 
 import pytz
 
-from exchanges.exchange import Exchange
-from exchanges.trade import Trade
-from exchanges.order import Order
-from exchanges.signed_single_endpoint import SignedSingleEndpoint
-from exchanges.exception import APIException
+from cryptex.exchange import Exchange
+from cryptex.trade import Trade
+from cryptex.order import Order
+from cryptex.signed_single_endpoint import SignedSingleEndpoint
+from cryptex.exception import APIException
 
 class BTCE(Exchange, SignedSingleEndpoint):
     API_ENDPOINT = 'https://btc-e.com/tapi'

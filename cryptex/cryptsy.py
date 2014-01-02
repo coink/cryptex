@@ -3,10 +3,10 @@ from decimal import Decimal
 
 import pytz
 
-from exchanges.exchange import Exchange
-from exchanges.trade import Trade
-from exchanges.order import Order
-from exchanges.signed_single_endpoint import SignedSingleEndpoint
+from cryptex.exchange import Exchange
+from cryptex.trade import Trade
+from cryptex.order import Order
+from cryptex.signed_single_endpoint import SignedSingleEndpoint
 
 class Cryptsy(Exchange, SignedSingleEndpoint):
     API_ENDPOINT = 'https://www.cryptsy.com/api'

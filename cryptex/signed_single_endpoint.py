@@ -6,7 +6,7 @@ from decimal import Decimal
 
 import requests
 
-from exchanges.exception import APIException
+from cryptex.exception import APIException
 
 class SignedSingleEndpoint(object):
     """
