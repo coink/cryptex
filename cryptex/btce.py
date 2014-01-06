@@ -40,8 +40,8 @@ class BTCE(Exchange, SignedSingleEndpoint):
         return Trade(
             trade_id = trade_id,
             trade_type = trade_type,
-            base_currency = base,
-            counter_currency = counter,
+            base_currency = base.upper(),
+            counter_currency = counter.upper(),
             time = BTCE._format_timestamp(trade['timestamp']),
             order_id = trade['order_id'],
             amount = trade['amount'],
@@ -64,8 +64,8 @@ class BTCE(Exchange, SignedSingleEndpoint):
         return Order(
             order_id = order_id,
             order_type = order_type,
-            base_currency = base,
-            counter_currency = counter,
+            base_currency = base.upper(),
+            counter_currency = counter.upper(),
             time = BTCE._format_timestamp(order['timestamp_created']),
             amount = order['amount'],
             price = order['rate']
