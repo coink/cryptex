@@ -113,3 +113,20 @@ class BTCE(Exchange, SignedSingleEndpoint):
 
             ('XPM', 'BTC'),
         ]
+
+    def _create_order(self, market, order_type, quantity, price):
+        params = {
+            'pair': market[0].lower() + '_' + market[1].lower(),
+            'type': order_type,
+            'amount': quantity,
+            'rate': price
+        }
+        return self.perform_request('Trade', params)
+
+    def buy(self, market, quantity, price):
+        response = self._create_order(market, 'buy', quantity, price)
+        return response['order_id']
+
+    def sell(self, market, quantity, price):
+        response = self._create_order(market, 'sell', quantity, price)
+        return response['order_id']
