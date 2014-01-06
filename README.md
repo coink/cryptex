@@ -1,21 +1,92 @@
 Cryptex: Cryptocurrency Exchange Client
 =======================================
 
-Python library that aims to provide a uniform access layer for cryptocurrency exchanges. 
+Python library that aims to provide a uniform access layer for cryptocurrency exchanges.  Currently, the library supports access to [Cryptsy][1] and to [BTC-e][2].
 
-Supported Exchanges
--------------------
+Usage
+-----
 
-[x] Cryptsy  
-[x] BTC-e  
-[ ] Bter  
+All methods are performed by first initializing an `Exchange` with your API key and secret.
 
-Supported Methods
------------------
+```python
+>>> from cryptex.cryptsy import Cryptsy
+>>> exchange = Cryptsy('API_KEY_HERE', 'API_SECRET_HERE')
+```
 
-[x] `get_markets()`  
-[x] `get_my_open_orders()`  
-[x] `get_my_trades()`  
-[x] `cancel_order(order_id)`  
-[ ] `buy(from, to, quantity, price)`  
-[ ] `sell(from, to, quantity, price)`  
+Currently, the only exchanges are `cryptex.cryptsy.Cryptsy` and `cryptex.btce.BTCE`.
+
+### Get available markets
+
+```python
+>>> exchange.get_markets()
+[('BTC', 'USD'),
+ ('BTC', 'RUR'),
+ ('BTC', 'EUR'),
+ ('LTC', 'BTC'),
+ ('LTC', 'USD'),
+ ('LTC', 'RUR'),
+ ('LTC', 'EUR'),
+ ('NMC', 'BTC'),
+ ('NMC', 'USD'),
+ ('NVC', 'BTC'),
+ ('NVC', 'USD'),
+ ('USD', 'RUR'),
+ ('EUR', 'USD'),
+ ('TRC', 'BTC'),
+ ('PPC', 'BTC'),
+ ('PPC', 'USD'),
+ ('FTC', 'BTC'),
+ ('XPM', 'BTC')]
+```
+
+### Get trade history
+
+```python
+>>> trades = exchange.get_my_trades()
+>>> trades[0].__dict__
+{'amount': Decimal('1.67577'),
+ 'base_currency': u'LTC',
+ 'counter_currency': u'BTC',
+ 'fee': None,
+ 'order_id': 12345,
+ 'price': Decimal('0.03505'),
+ 'time': datetime.datetime(2013, 12, 12, 6, 39, 31, tzinfo=<UTC>),
+ 'trade_id': u'20292389',
+ 'trade_type': 0}
+```
+
+### Get open orders
+
+```python
+>>> orders = exchange.get_my_open_orders()
+>>> orders[0].__dict__
+{'amount': Decimal('0.10000000'),
+ 'base_currency': u'LTC',
+ 'counter_currency': u'BTC',
+ 'order_id': u'12345',
+ 'order_type': 0,
+ 'price': Decimal('0.02000000'),
+ 'time': datetime.datetime(2014, 1, 6, 5, 56, 14, tzinfo=<UTC>)}
+```
+
+### Cancel an order
+
+```python
+>>> order_id = '12345'
+>>> exchange.cancel_order(order_id)
+```
+
+### Trade
+
+```python
+>>> market = ("LTC", "BTC")
+>>> amount = "0.1"
+>>> price = "0.02"
+>>> exchange.buy(market, amount, price)
+13423
+>>> exchange.sell(market, amount, price)
+13424
+```
+
+[1]: https://www.cryptsy.com/
+[2]: https://btc-e.com/
