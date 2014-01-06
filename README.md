@@ -39,6 +39,8 @@ Currently, the only exchanges are `cryptex.cryptsy.Cryptsy` and `cryptex.btce.BT
  ('XPM', 'BTC')]
 ```
 
+Markets are represented throughout the library as tuples of the form (`base_currency`, `counter_currency`).
+
 ### Get trade history
 
 ```python
@@ -54,6 +56,8 @@ Currently, the only exchanges are `cryptex.cryptsy.Cryptsy` and `cryptex.btce.BT
  'trade_id': u'20292389',
  'trade_type': 0}
 ```
+
+Timestamps are all normalized to be timezone-aware `datetime.datetime` objects in UTC. Prices and amounts are represented as `decimal.Decimal`s, never `float`s.  `Trade.trade_type` must be either `Trade.BUY` or `Trade.SELL`.
 
 ### Get open orders
 
@@ -87,6 +91,8 @@ Currently, the only exchanges are `cryptex.cryptsy.Cryptsy` and `cryptex.btce.BT
 >>> exchange.sell(market, amount, price)
 13424
 ```
+
+The `buy` and `sell` methods both return the `order_id` of the created order.
 
 [1]: https://www.cryptsy.com/
 [2]: https://btc-e.com/
