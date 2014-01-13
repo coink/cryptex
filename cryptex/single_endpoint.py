@@ -2,11 +2,33 @@ import time
 import hmac
 from hashlib import sha512
 from urllib import urlencode
+from urlparse import urljoin
 from decimal import Decimal
 
 import requests
 
 from cryptex.exception import APIException
+
+class SingleEndpoint(object):
+    ''' Simple enpoint for performing any kind of get request '''
+    def perform_get_request(self, method='', params={}):
+        request_url = type(self).API_ENDPOINT
+        if method:
+            if not request_url.endswith('/'):
+                request_url += '/'
+            request_url = urljoin(request_url, method)
+        r = requests.get(request_url, params=params)
+        content = r.json(parse_float=Decimal)
+        if not content:
+            raise APIException('Empty response')
+
+        if 'success' in content:
+            if int(content['success']) == 0:
+                raise APIException(content['error'])
+        if 'return' in content:
+            return content['return']
+        else:
+            return content
 
 class SignedSingleEndpoint(object):
     """

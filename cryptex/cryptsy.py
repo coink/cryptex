@@ -6,7 +6,7 @@ import pytz
 from cryptex.exchange import Exchange
 from cryptex.trade import Trade
 from cryptex.order import Order
-from cryptex.signed_single_endpoint import SignedSingleEndpoint
+from cryptex.single_endpoint import SignedSingleEndpoint
 
 class Cryptsy(Exchange, SignedSingleEndpoint):
     API_ENDPOINT = 'https://www.cryptsy.com/api'
