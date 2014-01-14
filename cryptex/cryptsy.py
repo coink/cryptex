@@ -1,34 +1,118 @@
 import datetime
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 import pytz
 
 from cryptex.exchange import Exchange
 from cryptex.trade import Trade
 from cryptex.order import Order
-from cryptex.single_endpoint import SignedSingleEndpoint
+from cryptex.single_endpoint import SingleEndpoint, SignedSingleEndpoint
 
-class Cryptsy(Exchange, SignedSingleEndpoint):
+
+class CryptsyBase(object):
+    def __init__(self):
+        '''
+        Can't get servertimezone via public API so hardcode to EST
+        '''
+        self.timezone = pytz.timezone(u'EST')
+
+    def _get_info(self):
+        raise NotImplemented
+
+    def _get_timezone(self):
+        """
+        Cryptsy seems to return all its timestamps in Eastern Standard Time,
+        instead of doing the sane thing and returning UTC. But, the API does
+        not make this a guarantee, so we do a request for getinfo and get the
+        timezone then. We'll cache it, too.
+        """
+        if self.timezone is None:
+            self.timezone = pytz.timezone(self._get_info()['servertimezone'])
+
+        return self.timezone
+
+    def _convert_timestamp(self, time_str):
+        """
+        Convert cryptsy timestamp to timezone-aware datetime object in UTC
+        """
+        naive_time = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
+        cryptsy_time = self._get_timezone()
+        aware_time = cryptsy_time.normalize(cryptsy_time.localize(naive_time)).astimezone(pytz.utc)
+        return aware_time
+
+    @staticmethod
+    def fix_json_types(node):
+        '''
+        As Crypts provides every (?) json value as unicode string,
+        this takes a json dict and converts all floats to Decimal and ints to int
+        '''
+        if isinstance(node, dict):
+            for key, item in node.items():
+                node[key] = CryptsyBase.fix_json_types(item)
+            return node
+        elif isinstance(node, list):
+            for index, item in enumerate(node):
+                node[index] = CryptsyBase.fix_json_types(item)
+            return node
+        elif isinstance(node, unicode):
+            try:
+                node = Decimal(node)
+                if node == node.to_integral_value():
+                    node = int(node)
+            except InvalidOperation, e:
+                pass
+            return node
+        else:
+            return node
+
+
+class CryptsyPublic(CryptsyBase, SingleEndpoint):
+    API_ENDPOINT = 'http://pubapi.cryptsy.com/api.php'
+
+    def perform_get_request(self, method='', params={}):
+        return self.fix_json_types(super(CryptsyPublic, self).perform_get_request(method, params))
+
+    def get_market_data(self, market_id=None):
+        '''
+        General Market Data
+        '''
+        if market_id:
+            params = {'method': 'singlemarketdata',
+                    'marketid': market_id}
+        else:
+            params = {'method': 'marketdatav2'}
+
+        market_data = []
+        for crap, market in self.perform_get_request(params=params)['markets'].iteritems():
+            market['lasttradetime'] = self._convert_timestamp(market['lasttradetime'])
+            for trade in market['recenttrades']:
+                trade['time'] = self._convert_timestamp(trade['time'])
+            market_data.append(market)
+        return market_data
+
+
+    def get_order_data(self, market_id=None):
+        '''
+        General Orderbook Data
+        '''
+        if market_id:
+            params = {'method': 'singleorderdata',
+                    'marketid': market_id}
+        else:
+            params = {'method': 'orderdata'}
+        return self.perform_get_request(params=params)
+
+
+class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
     API_ENDPOINT = 'https://www.cryptsy.com/api'
     def __init__(self, key, secret):
         self.key = key
         self.secret = secret
-        self.timezone = None
         self.market_currency_map = None
-        self.pair_market_map = None
+        self.timezone = None
 
-    def _get_timezone(self):
-        """
-        Cryptsy seems to return all its timestamps in Eastern Standard Time, 
-        instead of doing the sane thing and returning UTC. But, the API does 
-        not make this a guarantee, so we do a request for getinfo and get the 
-        timezone then. We'll cache it, too.
-        """
-        if self.timezone is not None:
-            return self.timezone
-
-        info = self._get_info()
-        return pytz.timezone(info['servertimezone'])
+    def perform_request(self, method, data={}):
+        return self.fix_json_types(super(Cryptsy, self).perform_request(method, data))
 
     def _convert_timestamp(self, time_str):
         """
