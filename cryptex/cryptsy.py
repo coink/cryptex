@@ -108,8 +108,9 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
     def __init__(self, key, secret):
         self.key = key
         self.secret = secret
-        self.market_currency_map = None
         self.timezone = None
+        self.market_currency_map = None
+        self.pair_market_map = None
 
     def perform_request(self, method, data={}):
         return self.fix_json_types(super(Cryptsy, self).perform_request(method, data))
