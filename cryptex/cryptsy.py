@@ -17,7 +17,7 @@ class CryptsyBase(object):
         self.timezone = pytz.timezone(u'EST')
 
     def _get_info(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     def _get_timezone(self):
         """
