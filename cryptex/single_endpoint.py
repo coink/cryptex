@@ -19,6 +19,7 @@ class SingleEndpoint(object):
             request_url = urljoin(request_url, method)
         r = requests.get(request_url, params=params)
         content = r.json(parse_float=Decimal)
+
         if not content:
             raise APIException('Empty response')
 
@@ -57,15 +58,14 @@ class SignedSingleEndpoint(object):
         r = requests.post(type(self).API_ENDPOINT, data=payload, headers=headers)
         content = r.json(parse_float=Decimal)
 
+        # Cryptsy returns success as a string, BTC-e as a int
+        if int(content['success']) != 1:
+            raise APIException(content['error'])
+
         # Cryptsy's createorder response is stupidly broken
         if method == 'createorder':
             content['return'] = {
                 'orderid': content['orderid'],
                 'moreinfo': content['moreinfo']
             }
-
-        # Cryptsy returns success as a string, BTC-e as a int
-        if int(content['success']) == 1:
-            return content['return']
-        else:
-            raise APIException(content['error'])
+        return content['return']
