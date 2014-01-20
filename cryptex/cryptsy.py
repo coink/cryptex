@@ -3,9 +3,11 @@ from decimal import Decimal, InvalidOperation
 
 import pytz
 
+from cryptex.exception import *
 from cryptex.exchange import Exchange
 from cryptex.trade import Trade
 from cryptex.order import Order
+from cryptex.transaction import *
 from cryptex.single_endpoint import SingleEndpoint, SignedSingleEndpoint
 
 
@@ -31,9 +33,9 @@ class CryptsyBase(object):
 
         return self.timezone
 
-    def _convert_timestamp(self, time_str):
+    def _convert_datetime(self, time_str):
         """
-        Convert cryptsy timestamp to timezone-aware datetime object in UTC
+        Convert cryptsy datetime to timezone-aware datetime object in UTC
         """
         naive_time = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
         cryptsy_time = self._get_timezone()
@@ -82,9 +84,9 @@ class CryptsyPublic(CryptsyBase, SingleEndpoint):
 
         market_data = []
         for crap, market in self.perform_get_request(params=params)['markets'].iteritems():
-            market['lasttradetime'] = self._convert_timestamp(market['lasttradetime'])
+            market['lasttradetime'] = self._convert_datetime(market['lasttradetime'])
             for trade in market['recenttrades']:
-                trade['time'] = self._convert_timestamp(trade['time'])
+                trade['time'] = self._convert_datetime(trade['time'])
             market_data.append(market)
         return market_data
 
@@ -106,14 +108,13 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
     def __init__(self, key, secret):
         self.key = key
         self.secret = secret
-        self.timezone = None
         self.market_currency_map = None
-        self.pair_market_map = None
+        self.timezone = None
 
     def perform_request(self, method, data={}):
         return self.fix_json_types(super(Cryptsy, self).perform_request(method, data))
 
-    def _convert_timestamp(self, time_str):
+    def _convert_datetime(self, time_str):
         """
         Convert cryptsy timestamp to timezone-aware datetime object in UTC
         """
@@ -132,35 +133,28 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
             }
         return self.market_currency_map
 
-    def _get_pair_market_map(self):
-        if self.pair_market_map is None:
-            markets = self.perform_request('getmarkets')
-            self.pair_market_map = {
-                (m['primary_currency_code'], m['secondary_currency_code']):
-                m['marketid']
-                for m in markets
-            }
-        return self.pair_market_map
-
     def _get_currencies(self, market_id):
         """
         Cryptsy uses references to market_ids which uniquely identify markets.
         Given a market_id, this function returns a two-tuple containing the currencies involved.
         """
+        market_id = self._get_market_id(market_id)
         return self._get_market_currency_map()[market_id]
 
     def _get_market_id(self, pair):
-        return self._get_pair_market_map()[pair]
+        if isinstance(pair, int) and pair in self._get_market_currency_map():
+            # looks like this already is a market_id
+            return pair
+        market = filter(lambda m: m[1] == pair, self._get_market_currency_map().iteritems())
+        if not market:
+            raise CryptsyException('Market not found')
+        return market[0][0]
 
     def _get_info(self):
         return self.perform_request('getinfo')
 
     def get_markets(self):
-        markets = self.perform_request('getmarkets')
-        return [
-            (m['primary_currency_code'], m['secondary_currency_code']) 
-            for m in markets
-        ]
+        return [m[1] for m in self._get_market_currency_map().iteritems()]
 
     def _format_trade(self, trade):
         if trade['tradetype'] == 'Buy':
@@ -175,11 +169,11 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
             trade_type = trade_type,
             base_currency = base,
             counter_currency = counter,
-            time = self._convert_timestamp(trade['datetime']),
+            time = self._convert_datetime(trade['datetime']),
             order_id = trade['order_id'],
-            amount = Decimal(trade['quantity']),
-            price = Decimal(trade['tradeprice']),
-            fee = Decimal(trade['fee'])
+            amount = trade['quantity'],
+            price = trade['tradeprice'],
+            fee = trade['fee']
         )
 
     def get_my_trades(self):
@@ -199,14 +193,34 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
             order_type = order_type,
             base_currency = base,
             counter_currency = counter,
-            time = self._convert_timestamp(order['created']),
-            amount = Decimal(order['quantity']),
-            price = Decimal(order['price'])
+            time = self._convert_datetime(order['created']),
+            amount = order['quantity'],
+            price = order['price']
         )
 
-    def get_my_open_orders(self):
-        orders = self.perform_request('allmyorders')
+    def get_my_open_orders(self, market=None):
+        if market:
+            market_id = self._get_market_id(market)
+            orders = self.perform_request('myorders', {'marketid': market_id})
+            # response does not contain market_id
+            for index, order in enumerate(orders):
+                order[u'marketid'] = market_id
+                orders[index] = order
+        else:
+            orders = self.perform_request('allmyorders')
         return [self._format_order(o) for o in orders]
+
+    def get_market_orders(self, market):
+        market_id = self._get_market_id(market)
+        return self.perform_request('marketorders', {'marketid': market_id})
+
+    def get_market_trades(self, market):
+        market_id = self._get_market_id(market)
+        trades = self.perform_request('markettrades', {'marketid': market_id})
+        for index, trade in enumerate(trades):
+            trade['datetime'] = self._convert_datetime(trade['datetime'])
+            trades[index] = trade
+        return trades
 
     def cancel_order(self, order_id):
         self.perform_request('cancelorder', {'orderid': order_id})
@@ -231,3 +245,24 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
         market_id = self._get_market_id(market)
         response = self._create_order(market_id, 'Sell', quantity, price)
         return response['orderid']
+
+    def get_my_transactions(self, limit=None):
+        transactions = []
+        for t in self.perform_request('mytransactions'):
+            if t['type'] == 'Withdraw':
+                transactions.append(Withdraw(t['trxid'],
+                                            self._convert_datetime(t['datetime']),
+                                            t['currency'],
+                                            t['amount'],
+                                            t['address'],
+                                            t['fee'],
+                                    ))
+            elif t['type'] == 'Deposit':
+                transactions.append(Deposit(t['trxid'],
+                                            self._convert_datetime(t['datetime']),
+                                            t['currency'],
+                                            t['amount'],
+                                            t['address'],
+                                            t['fee'],
+                                    ))
+        return transactions

@@ -33,3 +33,6 @@ class Exchange(object):
 
     def sell(self, market, quantity, price):
         raise NotImplementedError
+
+    def get_my_transactions(self, limit=None):
+        raise NotImplementedError
