@@ -142,7 +142,7 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
         return self._get_market_currency_map()[market_id]
 
     def _get_market_id(self, pair):
-        if isinstance(pair, int) and pair in self._get_market_currency_map():
+        if pair in self._get_market_currency_map():
             # looks like this already is a market_id
             return pair
         market = filter(lambda m: m[1] == pair, self._get_market_currency_map().iteritems())
