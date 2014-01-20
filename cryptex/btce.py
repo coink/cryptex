@@ -108,7 +108,7 @@ class BTCE(BTCEBase, Exchange, SignedSingleEndpoint):
         else:
             trade_type = Trade.SELL
 
-        base, counter = BTC._pair_to_market(order['pair'])
+        base, counter = BTCE._pair_to_market(trade['pair'])
 
         return Trade(
             trade_id = trade_id,
@@ -132,7 +132,7 @@ class BTCE(BTCEBase, Exchange, SignedSingleEndpoint):
         else:
             order_type = Trade.SELL
 
-        base, counter = BTC._pair_to_market(order['pair'])
+        base, counter = BTCE._pair_to_market(order['pair'])
 
         return Order(
             order_id = order_id,
@@ -154,13 +154,13 @@ class BTCE(BTCEBase, Exchange, SignedSingleEndpoint):
 
     def get_markets(self):
         return [
-            BTC._pair_to_market(pair)
-            for pair in self.public.get_info()
+            BTCE._pair_to_market(pair)
+            for pair in self.public.get_info()['pairs']
         ]
 
     def _create_order(self, market, order_type, quantity, price):
         params = {
-            'pair': BTC._market_to_pair(market),
+            'pair': BTCE._market_to_pair(market),
             'type': order_type,
             'amount': quantity,
             'rate': price
