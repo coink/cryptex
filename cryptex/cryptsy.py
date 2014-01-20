@@ -57,8 +57,6 @@ class CryptsyBase(object):
         elif isinstance(node, unicode):
             try:
                 node = Decimal(node)
-                if node == node.to_integral_value():
-                    node = int(node)
             except InvalidOperation, e:
                 pass
             return node
