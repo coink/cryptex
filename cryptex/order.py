@@ -8,3 +8,6 @@ class Order(object):
         self.time = time
         self.amount = amount
         self.price = price
+
+    def __str__(self):
+        return repr(self.__dict__)

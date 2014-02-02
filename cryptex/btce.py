@@ -5,6 +5,7 @@ import pytz
 from cryptex.exchange import Exchange
 from cryptex.trade import Trade
 from cryptex.order import Order
+from cryptex.transaction import *
 from cryptex.single_endpoint import SingleEndpoint, SignedSingleEndpoint
 from cryptex.exception import APIException
 
@@ -174,4 +175,28 @@ class BTCE(BTCEBase, Exchange, SignedSingleEndpoint):
     def sell(self, market, quantity, price):
         response = self._create_order(market, 'sell', quantity, price)
         return response['order_id']
+
+    def get_my_transactions(self, limit=1000):
+        transactions = []
+        for tid, t in self.perform_request('TransHistory', {'count': limit}).iteritems():
+            if t['type'] == 1:
+                transactions.append(Deposit(tid,
+                                            self._format_timestamp(t['timestamp']),
+                                            t['currency'],
+                                            t['amount'],
+                                            ''
+                                    ))
+            elif t['type'] ==2:
+                idx = t['desc'].find('address ')
+                if idx:
+                    address = t['desc'][idx+8]
+                else:
+                    address = ''
+                transactions.append(Withdraw(tid,
+                                            self._format_timestamp(t['timestamp']),
+                                            t['currency'],
+                                            t['amount'],
+                                            address
+                                    ))
+        return transactions
 
