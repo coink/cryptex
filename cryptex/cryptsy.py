@@ -104,7 +104,7 @@ class CryptsyPublic(CryptsyBase, SingleEndpoint):
 
 
 class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
-    API_ENDPOINT = 'https://www.cryptsy.com/api'
+    API_ENDPOINT = 'https://api.cryptsy.com/api'
     def __init__(self, key, secret):
         self.key = key
         self.secret = secret
