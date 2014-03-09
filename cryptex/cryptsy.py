@@ -14,9 +14,9 @@ from cryptex.single_endpoint import SingleEndpoint, SignedSingleEndpoint
 class CryptsyBase(object):
     def __init__(self):
         '''
-        Can't get servertimezone via public API so hardcode to EST
+        Can't get servertimezone via public API so hardcode to UTC
         '''
-        self.timezone = pytz.timezone(u'EST')
+        self.timezone = pytz.timezone(u'UTC')
 
     def _get_info(self):
         raise NotImplementedError
@@ -47,6 +47,9 @@ class CryptsyBase(object):
         '''
         As Crypts provides every (?) json value as unicode string,
         this takes a json dict and converts all floats to Decimal and ints to int
+
+        sjdev - This is no longer necessary, it seems, because cryptsy sends
+        all numbers as unicode, therefore preserving the accuracy
         '''
         if isinstance(node, dict):
             for key, item in node.items():
@@ -56,7 +59,7 @@ class CryptsyBase(object):
             for index, item in enumerate(node):
                 node[index] = CryptsyBase.fix_json_types(item)
             return node
-        elif isinstance(node, unicode):
+        elif isinstance(node, float):
             try:
                 node = Decimal(node)
             except InvalidOperation, e:
@@ -83,7 +86,7 @@ class CryptsyPublic(CryptsyBase, SingleEndpoint):
             params = {'method': 'marketdatav2'}
 
         market_data = []
-        for crap, market in self.perform_get_request(params=params)['markets'].iteritems():
+        for key, market in self.perform_get_request(params=params)['markets'].iteritems():
             market['lasttradetime'] = self._convert_datetime(market['lasttradetime'])
             for trade in market['recenttrades']:
                 trade['time'] = self._convert_datetime(trade['time'])
