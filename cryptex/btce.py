@@ -175,3 +175,9 @@ class BTCE(BTCEBase, Exchange, SignedSingleEndpoint):
         response = self._create_order(market, 'sell', quantity, price)
         return response['order_id']
 
+    def get_my_funds(self):
+        funds = {}
+        for key, value in self.perform_request('getInfo')['funds'].iteritems():
+            funds[key.upper()] = value
+        return funds
+

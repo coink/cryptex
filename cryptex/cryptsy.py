@@ -231,3 +231,6 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
         market_id = self._get_market_id(market)
         response = self._create_order(market_id, 'Sell', quantity, price)
         return response['orderid']
+
+    def get_my_funds(self):
+        return self._get_info()['balances_available']

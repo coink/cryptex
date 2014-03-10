@@ -33,3 +33,9 @@ class Exchange(object):
 
     def sell(self, market, quantity, price):
         raise NotImplementedError
+
+    def get_my_funds(self):
+        """
+        Returns a dict that represent all the user's funds (not on orders) as {'CURRENCY': Decimal(<Value>), ...}.
+        """
+        raise NotImplementedError
