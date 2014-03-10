@@ -40,7 +40,7 @@ class BTCEPublic(BTCEBase, SingleEndpoint):
             if limit > 2000:
                 raise ValueError('Maximum limit is 2000')
             params['limit'] = limit
-        #pair = BTCEPublic._market_to_pair(market)
+        
         j = self.perform_get_request('/'.join((method, market)), params=params)
         return j[market]
 
