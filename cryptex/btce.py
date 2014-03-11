@@ -184,12 +184,13 @@ class BTCE(BTCEBase, Exchange, SignedSingleEndpoint):
                                             self._format_timestamp(t['timestamp']),
                                             t['currency'],
                                             t['amount'],
-                                            ''
+                                            '',
+                                            0
                                     ))
-            elif t['type'] ==2:
+            elif t['type'] == 2:
                 idx = t['desc'].find('address ')
                 if idx:
-                    address = t['desc'][idx+8]
+                    address = t['desc'][idx+8:]
                 else:
                     address = ''
                 transactions.append(Withdraw(tid,

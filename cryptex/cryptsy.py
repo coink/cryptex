@@ -249,7 +249,7 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
     def get_my_transactions(self, limit=None):
         transactions = []
         for t in self.perform_request('mytransactions'):
-            if t['type'] == 'Withdraw':
+            if t['type'] == 'Withdrawal':
                 transactions.append(Withdraw(t['trxid'],
                                             self._convert_datetime(t['datetime']),
                                             t['currency'],
