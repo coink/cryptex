@@ -14,9 +14,9 @@ from cryptex.single_endpoint import SingleEndpoint, SignedSingleEndpoint
 class CryptsyBase(object):
     def __init__(self):
         '''
-        Can't get servertimezone via public API so hardcode to UTC
+        Can't get servertimezone via public API so hardcode to EST
         '''
-        self.timezone = pytz.timezone(u'UTC')
+        self.timezone = pytz.timezone(u'EST')
 
     def _get_info(self):
         raise NotImplementedError
