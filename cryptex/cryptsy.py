@@ -249,16 +249,17 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
     def get_my_transactions(self, limit=None):
         transactions = []
         for t in self.perform_request('mytransactions'):
+            tx_type = None
             if t['type'] == 'Withdrawal':
-                transactions.append(Withdraw(t['trxid'],
-                                            self._convert_datetime(t['datetime']),
-                                            t['currency'],
-                                            t['amount'],
-                                            t['address'],
-                                            t['fee'],
-                                    ))
+                tx_type = Withdraw
             elif t['type'] == 'Deposit':
-                transactions.append(Deposit(t['trxid'],
+                if t['currency'] == 'Points':
+                    # CryptyPoints ar'nt real deposits, so handle them as "unknown" transaction
+                    tx_type = Transaction
+                else:
+                    tx_type = Deposit
+            if tx_type:
+                transactions.append(tx_type(t['trxid'],
                                             self._convert_datetime(t['datetime']),
                                             t['currency'],
                                             t['amount'],
