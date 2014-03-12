@@ -180,6 +180,7 @@ class BTCE(BTCEBase, Exchange, SignedSingleEndpoint):
         transactions = []
         for tid, t in self.perform_request('TransHistory', {'count': limit}).iteritems():
             if t['type'] == 1:
+                # Assume no fees for deopsit
                 transactions.append(Deposit(tid,
                                             self._format_timestamp(t['timestamp']),
                                             t['currency'],
@@ -193,6 +194,7 @@ class BTCE(BTCEBase, Exchange, SignedSingleEndpoint):
                     address = t['desc'][idx+8:]
                 else:
                     address = ''
+                # Withdraw fees are not provided by BTC-e API
                 transactions.append(Withdraw(tid,
                                             self._format_timestamp(t['timestamp']),
                                             t['currency'],
