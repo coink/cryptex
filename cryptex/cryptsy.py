@@ -82,12 +82,12 @@ class CryptsyPublic(CryptsyBase, SingleEndpoint):
         else:
             params = {'method': 'marketdatav2'}
 
-        market_data = []
-        for crap, market in self.perform_get_request(params=params)['markets'].iteritems():
+        market_data = {}
+        for key, market in self.perform_get_request(params=params)['markets'].iteritems():
             market['lasttradetime'] = self._convert_datetime(market['lasttradetime'])
             for trade in market['recenttrades']:
                 trade['time'] = self._convert_datetime(trade['time'])
-            market_data.append(market)
+            market_data[key] = market
         return market_data
 
 

@@ -35,14 +35,18 @@ class BTCEPublic(BTCEBase, SingleEndpoint):
     API_ENDPOINT = 'https://btc-e.com/api/3/'
 
     def _get_market_info(self, method, market, limit=0):
+        '''
+        Takes a market as reported by the get_info() method -- meaning that it
+        must be of the form currencyA_currencyB
+        '''
         params = {}
         if limit:
             if limit > 2000:
                 raise ValueError('Maximum limit is 2000')
             params['limit'] = limit
-        pair = BTCEPublic._market_to_pair(market)
-        j = self.perform_get_request('/'.join((method, pair)), params=params)
-        return j[pair]
+        
+        j = self.perform_get_request('/'.join((method, market)), params=params)
+        return j[market]
 
     def get_info(self):
         '''
@@ -92,7 +96,7 @@ class BTCE(BTCEBase, Exchange, SignedSingleEndpoint):
         self.key = key
         self.secret = secret
         self.public = BTCEPublic()
-    
+
     def perform_request(self, method, data={}):
         try:
             return super(BTCE, self).perform_request(method, data)
