@@ -49,7 +49,7 @@ class BTCEPublic(BTCEBase, SingleEndpoint):
             params['ignore_invalid'] = 1
 
         j = self.perform_get_request('/'.join((method, '-'.join(markets))), params=params)
-        return [j[x] for x in j.keys() if x in markets]
+        return {x: j[x] for x in j.keys() if x in markets}
 
     def get_info(self):
         '''
