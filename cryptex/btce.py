@@ -34,7 +34,7 @@ class BTCEPublic(BTCEBase, SingleEndpoint):
     '''
     API_ENDPOINT = 'https://btc-e.com/api/3/'
 
-    def _get_market_info(self, method, market, limit=0):
+    def _get_market_info(self, method, markets, limit=0, ignore_invalid=True):
         '''
         Takes a market as reported by the get_info() method -- meaning that it
         must be of the form currencyA_currencyB
@@ -45,8 +45,11 @@ class BTCEPublic(BTCEBase, SingleEndpoint):
                 raise ValueError('Maximum limit is 2000')
             params['limit'] = limit
         
-        j = self.perform_get_request('/'.join((method, market)), params=params)
-        return j[market]
+        if ignore_invalid:
+            params['ignore_invalid'] = 1
+
+        j = self.perform_get_request('/'.join((method, '-'.join(markets))), params=params)
+        return [j[x] for x in j.keys() if x in markets]
 
     def get_info(self):
         '''
@@ -59,7 +62,7 @@ class BTCEPublic(BTCEBase, SingleEndpoint):
         j['server_time'] = BTCEPublic._format_timestamp(j['server_time'])
         return j
 
-    def get_ticker(self, market):
+    def get_ticker(self, markets, ignore_invalid=True):
         '''
         Information about bidding on a pair, such as:
         the highest price, lowest price, average price, trading volume,
@@ -68,23 +71,27 @@ class BTCEPublic(BTCEBase, SingleEndpoint):
         All information is provided in the last 24 hours.
         FIXME: What does that mean?
         '''
-        j = self._get_market_info('ticker', market)
-        j['updated'] = BTCEPublic._format_timestamp(j['updated'])
-        return j
+        results = self._get_market_info('ticker', markets, ignore_invalid)
+
+        for v in results:
+            if v is dict:
+                v['updated'] = BTCEPublic._format_timestamp(v['updated'])
+
+        return results
 
     def get_depth(self, market, limit=150):
         '''
         Information on active warrants pair.
         Takes an optional parameter limit which indicates how many orders you want to display (default 150, max 2000).
         '''
-        return self._get_market_info('depth', market, limit)
+        return self._get_market_info('depth', [market], limit)
 
     def get_trades(self, market, limit=150):
         '''
         Information on the latest deals.
         Takes an optional parameter limit which indicates how many orders you want to display (default 150, max 2000).
         '''
-        j = self._get_market_info('trades', market, limit)
+        j = self._get_market_info('trades', [market], limit)
         for t in j:
             t['timestamp'] = BTCEPublic._format_timestamp(t['timestamp'])
         return j
