@@ -1,12 +1,12 @@
 import datetime
 from decimal import Decimal, InvalidOperation
-
 import pytz
 
+import cryptex.common as common
 from cryptex.exception import CryptsyException
 from cryptex.exchange import Exchange
-from cryptex.trade import Trade
-from cryptex.order import Order
+from cryptex.trade import Sell, Buy
+from cryptex.order import SellOrder, BuyOrder
 from cryptex.transaction import Transaction, Deposit, Withdrawal
 from cryptex.exchange.single_endpoint import SingleEndpoint, SignedSingleEndpoint
 
@@ -134,42 +134,51 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
 
     def _format_trade(self, trade):
         if trade['tradetype'] == 'Buy':
-            trade_type = Trade.BUY
+            trade_type = Buy
         else:
-            trade_type = Trade.SELL
+            trade_type = Sell
 
         base, counter = self._get_currencies(trade['marketid'])
 
-        return Trade(
+        return trade_type(
             trade_id = trade['tradeid'],
-            trade_type = trade_type,
             base_currency = base,
             counter_currency = counter,
-            time = self._convert_datetime(trade['datetime']),
+            datetime = self._convert_datetime(trade['datetime']),
             order_id = trade['order_id'],
             amount = Decimal(trade['quantity']),
             price = Decimal(trade['tradeprice']),
             fee = Decimal(trade['fee'])
+            # Cryptsy's fee is always taken from counter_currency
+            fee_currency = counter,
         )
 
-    def get_my_trades(self):
-        trades = self.perform_request('allmytrades')
+    def get_my_trades(self, limit=200, market=None):
+        params = {'limit': limit}
+        if market is None:
+            trades = self.perform_request('allmytrades', params)
+        else:
+            params['marketid'] = self._get_market_id(market)
+            trades = self.perform_request('mytrades', params)
+            for index, trade in enumerate(trades):
+                trade['marketid'] = params['marketid']
+                trades[index] = trade
         return [self._format_trade(t) for t in trades]
 
     def _format_order(self, order):
         if order['ordertype'] == 'Buy':
-            order_type = Trade.BUY
+            order_type = BuyOrder
         else:
-            order_type = Trade.SELL
+            order_type = SellOrder
 
         base, counter = self._get_currencies(order['marketid'])
 
-        return Order(
+        return order_type(
             order_id = order['orderid'],
             order_type = order_type,
             base_currency = base,
             counter_currency = counter,
-            time = self._convert_datetime(order['created']),
+            datetime = self._convert_datetime(order['created']),
             amount = Decimal(order['quantity']),
             price = Decimal(order['price'])
         )

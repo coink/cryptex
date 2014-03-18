@@ -1,10 +1,9 @@
 import datetime
-
 import pytz
 
 from cryptex.exchange import Exchange
-from cryptex.trade import Trade
-from cryptex.order import Order
+from cryptex.trade import Sell, Buy
+from cryptex.order import SellOrder, BuyOrder
 from cryptex.transaction import Transaction, Deposit, Withdrawal
 from cryptex.exchange.single_endpoint import SingleEndpoint, SignedSingleEndpoint
 from cryptex.exception import APIException
@@ -113,45 +112,41 @@ class BTCE(BTCEBase, Exchange, SignedSingleEndpoint):
             else:
                 raise e
 
-    @staticmethod
-    def _format_trade(trade_id, trade):
-        if trade['type'] == 'buy':
-            trade_type = Trade.BUY
-        else:
-            trade_type = Trade.SELL
-
+    def _format_trade(self, trade_id, trade):
         base, counter = BTCE._pair_to_market(trade['pair'])
+        if trade['type'] == 'buy':
+            trade_type = Buy
+        else:
+            trade_type = Sell
 
-        return Trade(
+        return trade_type(
             trade_id = trade_id,
-            trade_type = trade_type,
             base_currency = base.upper(),
             counter_currency = counter.upper(),
-            time = BTCE._format_timestamp(trade['timestamp']),
+            datetime = BTCE._format_timestamp(trade['timestamp']),
             order_id = trade['order_id'],
             amount = trade['amount'],
-            price = trade['rate']
+            price = trade['rate'],
         )
 
     def get_my_trades(self):
         trades = self.perform_request('TradeHistory')
-        return [BTCE._format_trade(t_id, t) for t_id, t in trades.iteritems()]
+        return [self._format_trade(t_id, t) for t_id, t in trades.iteritems()]
 
     @staticmethod
     def _format_order(order_id, order):
         if order['type'] == 'buy':
-            order_type = Trade.BUY
+            order_type = BuyOrder
         else:
-            order_type = Trade.SELL
+            order_type = SellOrder
 
         base, counter = BTCE._pair_to_market(order['pair'])
 
-        return Order(
+        return order_type(
             order_id = order_id,
-            order_type = order_type,
             base_currency = base.upper(),
             counter_currency = counter.upper(),
-            time = BTCE._format_timestamp(order['timestamp_created']),
+            datetime = BTCE._format_timestamp(order['timestamp_created']),
             amount = order['amount'],
             price = order['rate']
         )
