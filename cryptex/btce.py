@@ -204,3 +204,8 @@ class BTCE(BTCEBase, Exchange, SignedSingleEndpoint):
                                     ))
         return transactions
 
+    def get_my_funds(self):
+        funds = {}
+        for key, value in self.perform_request('getInfo')['funds'].iteritems():
+            funds[key.upper()] = value
+        return funds

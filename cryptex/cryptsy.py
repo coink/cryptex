@@ -266,3 +266,6 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
                                             t['fee'],
                                     ))
         return transactions
+
+    def get_my_funds(self):
+        return self._get_info()['balances_available']
