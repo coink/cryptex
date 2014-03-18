@@ -251,7 +251,7 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
         for t in self.perform_request('mytransactions'):
             tx_type = None
             if t['type'] == 'Withdrawal':
-                tx_type = Withdraw
+                tx_type = Withdrawal
             elif t['type'] == 'Deposit':
                 if t['currency'] == 'Points':
                     # CryptyPoints ar'nt real deposits, so handle them as "unknown" transaction

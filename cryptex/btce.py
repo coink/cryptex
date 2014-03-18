@@ -199,7 +199,7 @@ class BTCE(BTCEBase, Exchange, SignedSingleEndpoint):
                 else:
                     address = ''
                 # Withdraw fees are not provided by BTC-e API
-                transactions.append(Withdraw(tid,
+                transactions.append(Withdrawal(tid,
                                             self._format_timestamp(t['timestamp']),
                                             t['currency'],
                                             t['amount'],
