@@ -1,4 +1,8 @@
 class Transaction(object):
+	''' Transaction that is neither deopsit nor withdrawal
+	Used for CryptsyPoint credit
+	'''
+	transaction_type = 0
 	def __init__(self, transaction_id, datetime, currency, amount, address, fee=None):
 		self.transaction_id = transaction_id
 		self.datetime = datetime
@@ -11,8 +15,7 @@ class Transaction(object):
 		return '<%s transaction of %.8f %s>' % (self.__class__.__name__,
 												self.amount,
 												self.currency)
-
 class Deposit(Transaction):
-	transaction_type = 0
-class Withdraw(Transaction):
 	transaction_type = 1
+class Withdraw(Transaction):
+	transaction_type = 2

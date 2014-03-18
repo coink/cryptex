@@ -12,3 +12,10 @@ class Trade(object):
         self.amount = amount
         self.price = price
         self.fee = fee
+
+    def __str__(self):
+        if self.trade_type == 0:
+            ts = 'Buy'
+        else:
+            ts ='Sell'
+        return '<%s of %.8f %s>' % (ts, self.amount, self.base_currency)
