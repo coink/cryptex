@@ -8,7 +8,7 @@ from cryptex.exchange import Exchange
 from cryptex.trade import Trade
 from cryptex.order import Order
 from cryptex.transaction import Transaction, Deposit, Withdrawal
-from cryptex.single_endpoint import SingleEndpoint, SignedSingleEndpoint
+from cryptex.exchange.single_endpoint import SingleEndpoint, SignedSingleEndpoint
 
 
 class CryptsyBase(object):

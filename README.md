@@ -9,11 +9,11 @@ Usage
 All methods are performed by first initializing an `Exchange` with your API key and secret.
 
 ```python
->>> from cryptex.cryptsy import Cryptsy
+>>> from cryptex.exchange import Cryptsy
 >>> exchange = Cryptsy('API_KEY_HERE', 'API_SECRET_HERE')
 ```
 
-Currently, the only exchanges are `cryptex.cryptsy.Cryptsy` and `cryptex.btce.BTCE`.
+Currently, the only exchanges are `cryptex.exchange.Cryptsy` and `cryptex.exchange.BTCE`.
 
 ### Get available markets
 
