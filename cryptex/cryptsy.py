@@ -3,11 +3,11 @@ from decimal import Decimal, InvalidOperation
 
 import pytz
 
-from cryptex.exception import *
+from cryptex.exception import CryptsyException
 from cryptex.exchange import Exchange
 from cryptex.trade import Trade
 from cryptex.order import Order
-from cryptex.transaction import *
+from cryptex.transaction import Transaction, Deposit, Withdrawal
 from cryptex.single_endpoint import SingleEndpoint, SignedSingleEndpoint
 
 

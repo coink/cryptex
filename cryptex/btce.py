@@ -5,7 +5,7 @@ import pytz
 from cryptex.exchange import Exchange
 from cryptex.trade import Trade
 from cryptex.order import Order
-from cryptex.transaction import *
+from cryptex.transaction import Transaction, Deposit, Withdrawal
 from cryptex.single_endpoint import SingleEndpoint, SignedSingleEndpoint
 from cryptex.exception import APIException
 
