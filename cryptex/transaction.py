@@ -21,5 +21,6 @@ class Transaction(object):
                                                 self.currency)
 class Deposit(Transaction):
     transaction_type = 1
-class Withdraw(Transaction):
+
+class Withdrawal(Transaction):
     transaction_type = 2
