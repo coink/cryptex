@@ -147,9 +147,9 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
             counter_currency = counter,
             time = self._convert_datetime(trade['datetime']),
             order_id = trade['order_id'],
-            amount = trade['quantity'],
-            price = trade['tradeprice'],
-            fee = trade['fee']
+            amount = Decimal(trade['quantity']),
+            price = Decimal(trade['tradeprice']),
+            fee = Decimal(trade['fee'])
         )
 
     def get_my_trades(self):
@@ -170,8 +170,8 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
             base_currency = base,
             counter_currency = counter,
             time = self._convert_datetime(order['created']),
-            amount = order['quantity'],
-            price = order['price']
+            amount = Decimal(order['quantity']),
+            price = Decimal(order['price'])
         )
 
     def get_my_open_orders(self, market=None):
