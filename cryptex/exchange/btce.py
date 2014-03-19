@@ -111,8 +111,8 @@ class BTCE(BTCEBase, Exchange, SignedSingleEndpoint):
                 return {}
             else:
                 raise e
-
-    def _format_trade(self, trade_id, trade):
+    @staticmethod
+    def _format_trade(trade_id, trade):
         base, counter = BTCE._pair_to_market(trade['pair'])
         if trade['type'] == 'buy':
             trade_type = Buy
@@ -131,7 +131,7 @@ class BTCE(BTCEBase, Exchange, SignedSingleEndpoint):
 
     def get_my_trades(self):
         trades = self.perform_request('TradeHistory')
-        return [self._format_trade(t_id, t) for t_id, t in trades.iteritems()]
+        return [BTCE._format_trade(t_id, t) for t_id, t in trades.iteritems()]
 
     @staticmethod
     def _format_order(order_id, order):
