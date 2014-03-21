@@ -18,6 +18,7 @@ class Trade(object):
         :param fee: anmount of fee payed to the exchange
         :param fee_currency: the currency the fee was payed in (base_currency or counter_currency)
         '''
+        self.trade_id = trade_id
         self.base_currency = base_currency
         self.counter_currency = counter_currency
         self.datetime = datetime
