@@ -148,7 +148,7 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
             order_id = trade['order_id'],
             amount = Decimal(trade['quantity']),
             price = Decimal(trade['tradeprice']),
-            fee = Decimal(trade['fee'])
+            fee = Decimal(trade['fee']),
             # Cryptsy's fee is always taken from counter_currency
             fee_currency = counter,
         )
