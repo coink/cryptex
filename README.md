@@ -1,19 +1,28 @@
 Cryptex: Cryptocurrency Exchange Client
 =======================================
 
-Python library that aims to provide a uniform access layer for cryptocurrency exchanges.  Currently, the library supports access to [Cryptsy][1] and to [BTC-e][2].
+Python library that aims to provide a uniform access layer for cryptocurrency
+exchanges.  Currently, the library supports access to [Cryptsy][1] and to
+[BTC-e][2].
+
+Installation
+------------
+
+    pip install git+https://github.com/coink/cryptex.git
 
 Usage
 -----
 
-All methods are performed by first initializing an `Exchange` with your API key and secret.
+All methods are performed by first initializing an `Exchange` with your API key
+and secret.
 
 ```python
 >>> from cryptex.exchange import Cryptsy
 >>> exchange = Cryptsy('API_KEY_HERE', 'API_SECRET_HERE')
 ```
 
-Currently, the only exchanges are `cryptex.exchange.Cryptsy` and `cryptex.exchange.BTCE`.
+Currently, the only exchanges are `cryptex.exchange.Cryptsy` and
+`cryptex.exchange.BTCE`.
 
 ### Get available markets
 
@@ -39,7 +48,8 @@ Currently, the only exchanges are `cryptex.exchange.Cryptsy` and `cryptex.exchan
  ('XPM', 'BTC')]
 ```
 
-Markets are represented throughout the library as tuples of the form (`base_currency`, `counter_currency`).
+Markets are represented throughout the library as tuples of the form
+(`base_currency`, `counter_currency`).
 
 ### Get trade history
 
@@ -57,7 +67,9 @@ Markets are represented throughout the library as tuples of the form (`base_curr
  'trade_type': 0}
 ```
 
-Timestamps are all normalized to be timezone-aware `datetime.datetime` objects in UTC. Prices and amounts are represented as `decimal.Decimal`s, never `float`s.  `Trade.trade_type` must be either `Trade.BUY` or `Trade.SELL`.
+Timestamps are all normalized to be timezone-aware `datetime.datetime` objects
+in UTC. Prices and amounts are represented as `decimal.Decimal`s, never
+`float`s.  `Trade.trade_type` must be either `Trade.BUY` or `Trade.SELL`.
 
 ### Get open orders
 
