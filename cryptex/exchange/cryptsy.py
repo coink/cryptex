@@ -125,7 +125,7 @@ class Cryptsy(CryptsyBase, Exchange):
         return market[0][0]
 
     def _get_info(self):
-        return self.perform_request('getinfo')
+        return self.api.perform_request('getinfo')
 
     def get_markets(self):
         return [m for m in self._get_market_currency_map().values()]
