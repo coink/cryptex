@@ -1,5 +1,5 @@
 from cryptex.soxex.wsconsumer import WebSocketConsumer
-from cryptex.soxex.socketserver import WebSocketBase
+from cryptex.soxex.websocketbase import WebSocketBase
 
 from pprint import pprint
 
@@ -8,23 +8,30 @@ class BlockChainInfoSocket(WebSocketBase, WebSocketConsumer):
 
     def __init__(self):
         super(BlockChainInfoSocket, self).__init__()
+        self.callback = None
 
     def connect(self):
         self.start_socket(self.WEBSOCKET_HOST)
 
-    def subscribe_txs(self):
+    def disconnect(self):
+        self.stop_socket()
+
+    def subscribe_txs(self, callback=None):
         if self.socket is None:
             self.connect()
             self.message_callback = self.on_message
 
+        self.callback = callback
         self.send_message('{"op":"unconfirmed_sub"}')
 
-    def subscribe_address(self, addr):
+    def subscribe_address(self, addr, callback=None):
         if self.socket is None:
             self.connect()
             self.message_callback = self.on_message
 
+        self.callback = callback
         self.send_message('{"op":"addr_sub", "addr":"%s"}' % addr)
 
     def on_message(self, data):
-        pass
+        if self.callback is not None:
+            self.callback(data['x'])

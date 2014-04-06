@@ -1,5 +1,5 @@
 from cryptex.soxex.pushersocket import PusherClientInterface
-from cryptex.soxex.socketserver import WebSocketBase
+from cryptex.soxex.websocketbase import WebSocketBase
 
 from pprint import pprint
 
@@ -11,10 +11,7 @@ class BitstampSocket(WebSocketBase, PusherClientInterface):
     def __init__(self):
         super(BitstampSocket, self).__init__()
 
-    def subscribe_txs(self):
-        def callback(data):
-            pprint(data)
-
+    def subscribe_txs(self, callback=None):
         self.connect(self.PUSHER_APP_KEY,
                      self.PUSHER_CHANNEL,
                      self.PUSHER_EVENT,

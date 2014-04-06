@@ -1,5 +1,5 @@
 from cryptex.soxex.pushersocket import PusherClientInterface
-from cryptex.soxex.socketserver import WebSocketBase
+from cryptex.soxex.websocketbase import WebSocketBase
 
 from pprint import pprint
 
@@ -15,10 +15,7 @@ class CryptsySocket(WebSocketBase, PusherClientInterface):
     def stop(self):
         self.close_connection()
 
-    def subscribe_txs(self, market_id):
-        def callback(data):
-            pprint(data)
-
+    def subscribe_txs(self, market_id, callback=None):
         self.connect(self.PUSHER_APP_KEY,
                      self.PUSHER_CHANNEL_TRADE + market_id,
                      self.PUSHER_EVENT,
@@ -27,10 +24,7 @@ class CryptsySocket(WebSocketBase, PusherClientInterface):
     def unsubscribe_txs(self, market_id):
         self.close(self.PUSHER_CHANNEL_TRADE + market_id)
 
-    def subscribe_ticker(self, market_id):
-        def callback(data):
-            pprint(data)
-
+    def subscribe_ticker(self, market_id, callback=None):
         self.connect(self.PUSHER_APP_KEY,
                      self.PUSHER_CHANNEL_TICKER + market_id,
                      self.PUSHER_EVENT,
