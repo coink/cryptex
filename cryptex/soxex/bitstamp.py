@@ -9,14 +9,17 @@ class BitstampSocket(WebSocketBase, PusherClientInterface):
     PUSHER_EVENT = 'trade'
 
     def __init__(self):
-        pass
+        super(BitstampSocket, self).__init__()
 
-    def start(self):
+    def subscribe_txs(self):
         def callback(data):
             pprint(data)
 
-        self.open_connection(self.PUSHER_APP_KEY, self.PUSHER_CHANNEL, self.PUSHER_EVENT, callback)
+        self.connect(self.PUSHER_APP_KEY,
+                     self.PUSHER_CHANNEL,
+                     self.PUSHER_EVENT,
+                     callback)
 
-    def stop(self):
-        self.close_connection()
+    def unsubscribe_txs(self):
+        self.close()
 
