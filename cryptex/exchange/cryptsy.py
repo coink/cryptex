@@ -8,7 +8,7 @@ from cryptex.exchange import Exchange
 from cryptex.trade import Sell, Buy
 from cryptex.order import SellOrder, BuyOrder
 from cryptex.transaction import Transaction, Deposit, Withdrawal
-from cryptex.exchange.single_endpoint import SingleEndpoint, SignedSingleEndpoint
+from cryptex.exchange.single_endpoint import SingleEndpointAPI
 
 
 class CryptsyBase(object):
@@ -42,24 +42,25 @@ class CryptsyBase(object):
         aware_time = cryptsy_time.normalize(cryptsy_time.localize(naive_time)).astimezone(pytz.utc)
         return aware_time
 
-class CryptsyPublic(CryptsyBase, SingleEndpoint):
-    API_ENDPOINT = 'http://pubapi.cryptsy.com/api.php'
+class CryptsyPublic(CryptsyBase):
 
-    def perform_get_request(self, method='', params={}):
-        return super(CryptsyPublic, self).perform_get_request(method, params)
+    def __init__(self):
+        super(CryptsyPublic, self).__init__()
+        self.api = SingleEndpointAPI('http://pubapi.cryptsy.com/api.php')
 
     def get_market_data(self, market_id=None):
         '''
         General Market Data
         '''
+        params = {}
         if market_id:
-            params = {'method': 'singlemarketdata',
-                    'marketid': market_id}
+            method = 'singlemarketdata'
+            params = {'marketid': market_id}
         else:
-            params = {'method': 'marketdatav2'}
+            method = 'marketdatav2'
 
         market_data = {}
-        for key, market in self.perform_get_request(params=params)['markets'].iteritems():
+        for key, market in self.api.perform_request(method, params)['markets'].iteritems():
             market['lasttradetime'] = self._convert_datetime(market['lasttradetime'])
             for trade in market['recenttrades']:
                 trade['time'] = self._convert_datetime(trade['time'])
@@ -71,21 +72,23 @@ class CryptsyPublic(CryptsyBase, SingleEndpoint):
         '''
         General Orderbook Data
         '''
+        params = {}
         if market_id:
-            params = {'method': 'singleorderdata',
-                    'marketid': market_id}
+            method = 'singleorderdata'
+            params = {'marketid': market_id}
         else:
-            params = {'method': 'orderdata'}
-        return self.perform_get_request(params=params)
+            method = 'orderdata'
+        return self.api.perform_request(method, params)
 
 
-class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
-    API_ENDPOINT = 'https://api.cryptsy.com/api'
+class Cryptsy(CryptsyBase, Exchange):
+
     def __init__(self, key, secret):
         self.key = key
         self.secret = secret
         self.market_currency_map = None
         self.timezone = None
+        self.api = SingleEndpointAPI('https://api.cryptsy.com/api', key, secret)
 
     def perform_request(self, method, data={}):
         return super(Cryptsy, self).perform_request(method, data)
