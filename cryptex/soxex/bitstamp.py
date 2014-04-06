@@ -18,5 +18,5 @@ class BitstampSocket(WebSocketBase, PusherClientInterface):
         self.open_connection(self.PUSHER_APP_KEY, self.PUSHER_CHANNEL, self.PUSHER_EVENT, callback)
 
     def stop(self):
-        pass
+        self.close_connection()
 
