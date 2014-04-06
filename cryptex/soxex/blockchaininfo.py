@@ -27,4 +27,4 @@ class BlockChainInfoSocket(WebSocketBase, WebSocketConsumer):
         self.send_message('{"op":"addr_sub", "addr":"%s"}' % addr)
 
     def on_message(self, data):
-        pprint(data)
+        pass
