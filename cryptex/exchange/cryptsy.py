@@ -84,14 +84,9 @@ class CryptsyPublic(CryptsyBase):
 class Cryptsy(CryptsyBase, Exchange):
 
     def __init__(self, key, secret):
-        self.key = key
-        self.secret = secret
+        super(Cryptsy, self).__init__()
         self.market_currency_map = None
-        self.timezone = None
         self.api = SingleEndpointAPI('https://api.cryptsy.com/api', key, secret)
-
-    def perform_request(self, method, data={}):
-        return super(Cryptsy, self).perform_request(method, data)
 
     def _convert_datetime(self, time_str):
         """
@@ -104,7 +99,7 @@ class Cryptsy(CryptsyBase, Exchange):
 
     def _get_market_currency_map(self):
         if self.market_currency_map is None:
-            markets = self.perform_request('getmarkets')
+            markets = self.api.perform_request('getmarkets')
             self.market_currency_map = {
                 m['marketid']:
                 (m['primary_currency_code'], m['secondary_currency_code'])
@@ -133,7 +128,7 @@ class Cryptsy(CryptsyBase, Exchange):
         return self.perform_request('getinfo')
 
     def get_markets(self):
-        return [m[1] for m in self._get_market_currency_map().iteritems()]
+        return [m for m in self._get_market_currency_map().values()]
 
     def _format_trade(self, trade):
         if trade['tradetype'] == 'Buy':
@@ -159,10 +154,10 @@ class Cryptsy(CryptsyBase, Exchange):
     def get_my_trades(self, limit=200, market=None):
         params = {'limit': limit}
         if market is None:
-            trades = self.perform_request('allmytrades', params)
+            trades = self.api.perform_request('allmytrades', params)
         else:
             params['marketid'] = self._get_market_id(market)
-            trades = self.perform_request('mytrades', params)
+            trades = self.api.perform_request('mytrades', params)
             for index, trade in enumerate(trades):
                 trade['marketid'] = params['marketid']
                 trades[index] = trade
@@ -189,29 +184,29 @@ class Cryptsy(CryptsyBase, Exchange):
     def get_my_open_orders(self, market=None):
         if market:
             market_id = self._get_market_id(market)
-            orders = self.perform_request('myorders', {'marketid': market_id})
+            orders = self.api.perform_request('myorders', {'marketid': market_id})
             # response does not contain market_id
             for index, order in enumerate(orders):
                 order[u'marketid'] = market_id
                 orders[index] = order
         else:
-            orders = self.perform_request('allmyorders')
+            orders = self.api.perform_request('allmyorders')
         return [self._format_order(o) for o in orders]
 
     def get_market_orders(self, market):
         market_id = self._get_market_id(market)
-        return self.perform_request('marketorders', {'marketid': market_id})
+        return self.api.perform_request('marketorders', {'marketid': market_id})
 
     def get_market_trades(self, market):
         market_id = self._get_market_id(market)
-        trades = self.perform_request('markettrades', {'marketid': market_id})
+        trades = self.api.perform_request('markettrades', {'marketid': market_id})
         for index, trade in enumerate(trades):
             trade['datetime'] = self._convert_datetime(trade['datetime'])
             trades[index] = trade
         return trades
 
     def cancel_order(self, order_id):
-        self.perform_request('cancelorder', {'orderid': order_id})
+        self.api.perform_request('cancelorder', {'orderid': order_id})
         return None
 
 
@@ -222,7 +217,7 @@ class Cryptsy(CryptsyBase, Exchange):
             'quantity': quantity,
             'price': price
         }
-        return self.perform_request('createorder', params)
+        return self.api.perform_request('createorder', params)
 
     def buy(self, market, quantity, price):
         market_id = self._get_market_id(market)
@@ -236,7 +231,7 @@ class Cryptsy(CryptsyBase, Exchange):
 
     def get_my_transactions(self, limit=None):
         transactions = []
-        for t in self.perform_request('mytransactions'):
+        for t in self.api.perform_request('mytransactions'):
             tx_type = None
             if t['type'] == 'Withdrawal':
                 tx_type = Withdrawal
