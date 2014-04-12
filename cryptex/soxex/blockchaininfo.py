@@ -10,15 +10,15 @@ class BlockChainInfoSocket(WebSocketBase, WebSocketConsumer):
         super(BlockChainInfoSocket, self).__init__()
         self.callback = None
 
-    def connect(self):
+    def _connect(self):
         self.start_socket(self.WEBSOCKET_HOST)
 
-    def disconnect(self):
+    def close(self):
         self.stop_socket()
 
     def subscribe_txs(self, callback=None):
         if self.socket is None:
-            self.connect()
+            self._connect()
             self.message_callback = self.on_message
 
         self.callback = callback
@@ -26,7 +26,7 @@ class BlockChainInfoSocket(WebSocketBase, WebSocketConsumer):
 
     def subscribe_address(self, addr, callback=None):
         if self.socket is None:
-            self.connect()
+            self._connect()
             self.message_callback = self.on_message
 
         self.callback = callback
