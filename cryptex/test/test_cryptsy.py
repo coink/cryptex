@@ -52,10 +52,10 @@ class TestCryptsyPrivate(unittest.TestCase):
         }
         with CryptsyMock(responses):
             markets = Cryptsy('key', 'secret').get_markets()
-            self.assertTrue(len(markets), 3)
-            self.assertIn(('DOGE', 'LTC'), markets)
-            self.assertIn(('LTC', 'BTC'), markets)
-            self.assertIn(('DOGE', 'BTC'), markets)
+        self.assertTrue(len(markets), 3)
+        self.assertIn(('DOGE', 'LTC'), markets)
+        self.assertIn(('LTC', 'BTC'), markets)
+        self.assertIn(('DOGE', 'BTC'), markets)
 
     def test_trades(self):
         responses = {
@@ -64,15 +64,15 @@ class TestCryptsyPrivate(unittest.TestCase):
         }
         with CryptsyMock(responses):
             trade = Cryptsy('key', 'secret').get_my_trades()[0]
-            self.assertTrue(isinstance(trade, cryptex.trade.Buy))
-            self.assertEqual(trade.trade_id, u'27208199')
-            self.assertEqual(trade.order_id, u'52078792')
-            self.assertEqual(trade.base_currency, u'DOGE')
-            self.assertEqual(trade.counter_currency, u'BTC')
-            self.assertEqual(trade.datetime, datetime(2014, 3, 2, 4, 4, 29, tzinfo=pytz.timezone('US/Eastern')))
-            self.assertEqual(trade.amount, Decimal('62661.89842537'))
-            self.assertEqual(trade.price, Decimal('0.00000180'))
-            self.assertEqual(trade.fee, Decimal('0.000225580'))
+        self.assertTrue(isinstance(trade, cryptex.trade.Buy))
+        self.assertEqual(trade.trade_id, u'27208199')
+        self.assertEqual(trade.order_id, u'52078792')
+        self.assertEqual(trade.base_currency, u'DOGE')
+        self.assertEqual(trade.counter_currency, u'BTC')
+        self.assertEqual(trade.datetime, datetime(2014, 3, 2, 4, 4, 29, tzinfo=pytz.timezone('US/Eastern')))
+        self.assertEqual(trade.amount, Decimal('62661.89842537'))
+        self.assertEqual(trade.price, Decimal('0.00000180'))
+        self.assertEqual(trade.fee, Decimal('0.000225580'))
 
 if __name__ == '__main__':
     unittest.main()
