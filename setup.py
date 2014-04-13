@@ -7,6 +7,7 @@ setup(
     packages=['cryptex', 'cryptex.exchange'],
     install_requires=[
         'requests>=2.1.0,<3.0',
-        'pytz>=2013.8'
+        'pytz>=2013.8',
+        'httpretty>=0.8.0',
     ]
 )

@@ -1,0 +1,125 @@
+{
+  "success": "1",
+  "return": [
+    {
+      "tradeid": "27208199",
+      "tradetype": "Buy",
+      "datetime": "2014-03-02 04:04:29",
+      "marketid": "132",
+      "tradeprice": "0.00000180",
+      "quantity": "62661.89842537",
+      "fee": "0.000225580",
+      "total": "0.11279142",
+      "initiate_ordertype": "Buy",
+      "order_id": "52078792"
+    },
+    {
+      "tradeid": "26621438",
+      "tradetype": "Sell",
+      "datetime": "2014-02-27 01:32:02",
+      "marketid": "132",
+      "tradeprice": "0.00000204",
+      "quantity": "50000.00000000",
+      "fee": "0.000306000",
+      "total": "0.10200000",
+      "initiate_ordertype": "Sell",
+      "order_id": "50017867"
+    },
+    {
+      "tradeid": "26176135",
+      "tradetype": "Buy",
+      "datetime": "2014-02-25 01:01:06",
+      "marketid": "132",
+      "tradeprice": "0.00000177",
+      "quantity": "50000.00000000",
+      "fee": "0.000177000",
+      "total": "0.08850000",
+      "initiate_ordertype": "Buy",
+      "order_id": "48780982"
+    },
+    {
+      "tradeid": "16402341",
+      "tradetype": "Sell",
+      "datetime": "2014-01-20 17:48:38",
+      "marketid": "132",
+      "tradeprice": "0.00000148",
+      "quantity": "100100.00000000",
+      "fee": "0.000444440",
+      "total": "0.14814800",
+      "initiate_ordertype": "Sell",
+      "order_id": "31293762"
+    },
+    {
+      "tradeid": "10878107",
+      "tradetype": "Buy",
+      "datetime": "2013-12-30 23:50:10",
+      "marketid": "132",
+      "tradeprice": "0.00000056",
+      "quantity": "100.00000000",
+      "fee": "0.000000110",
+      "total": "0.00005600",
+      "initiate_ordertype": "Sell",
+      "order_id": "24718789"
+    },
+    {
+      "tradeid": "10286544",
+      "tradetype": "Buy",
+      "datetime": "2013-12-28 20:06:40",
+      "marketid": "132",
+      "tradeprice": "0.00000065",
+      "quantity": "100000.00000000",
+      "fee": "0.000130000",
+      "total": "0.06500000",
+      "initiate_ordertype": "Buy",
+      "order_id": "24002590"
+    },
+    {
+      "tradeid": "9168651",
+      "tradetype": "Sell",
+      "datetime": "2013-12-24 04:54:47",
+      "marketid": "132",
+      "tradeprice": "0.00000091",
+      "quantity": "203668.86859122",
+      "fee": "0.000741350",
+      "total": "0.18533867",
+      "initiate_ordertype": "Buy",
+      "order_id": "22602044"
+    },
+    {
+      "tradeid": "8730459",
+      "tradetype": "Buy",
+      "datetime": "2013-12-22 01:27:52",
+      "marketid": "132",
+      "tradeprice": "0.00000065",
+      "quantity": "201205.29709811",
+      "fee": "0.000261570",
+      "total": "0.13078344",
+      "initiate_ordertype": "Sell",
+      "order_id": "22014787"
+    },
+    {
+      "tradeid": "8722828",
+      "tradetype": "Sell",
+      "datetime": "2013-12-22 00:41:27",
+      "marketid": "3",
+      "tradeprice": "0.02799298",
+      "quantity": "4.61726961",
+      "fee": "0.000387750",
+      "total": "0.12925114",
+      "initiate_ordertype": "Buy",
+      "order_id": "22002710"
+    },
+    {
+      "tradeid": "8720044",
+      "tradetype": "Sell",
+      "datetime": "2013-12-22 00:25:30",
+      "marketid": "3",
+      "tradeprice": "0.02799298",
+      "quantity": "0.07816876",
+      "fee": "0.000006560",
+      "total": "0.00218818",
+      "initiate_ordertype": "Sell",
+      "order_id": "22002710"
+    }
+  ]
+}
