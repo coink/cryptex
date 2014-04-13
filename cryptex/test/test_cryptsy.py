@@ -46,10 +46,21 @@ class TestCryptsyPrivate(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def test_markets(self):
+        responses = {
+            'getmarkets': 'get_markets.json',
+        }
+        with CryptsyMock(responses):
+            markets = Cryptsy('key', 'secret').get_markets()
+            self.assertTrue(len(markets), 3)
+            self.assertIn(('DOGE', 'LTC'), markets)
+            self.assertIn(('LTC', 'BTC'), markets)
+            self.assertIn(('DOGE', 'BTC'), markets)
+
     def test_trades(self):
         responses = {
             'allmytrades': 'all_my_trades.json',
-            'getmarkets': 'get_markets.json'
+            'getmarkets': 'get_markets.json',
         }
         with CryptsyMock(responses):
             trade = Cryptsy('key', 'secret').get_my_trades()[0]
