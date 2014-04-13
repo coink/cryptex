@@ -1,9 +1,12 @@
 import os
 import io
+
 import unittest
 import httpretty
 import requests
+
 from cryptex.exchange import Cryptsy
+import cryptex.trade
 
 test_dir = os.path.dirname(os.path.realpath(__file__))
 mock_dir = os.path.join(test_dir, 'mocks')
@@ -16,8 +19,6 @@ class CryptsyMock():
         self.responses = responses
 
     def request_callback(self, request, uri, headers):
-        print request
-        print request.__dict__
         method = request.parsed_body[u'method'][0]
         filename = self.responses[method]
         with io.open(os.path.join(mock_dir, filename), 'r') as f:
@@ -43,9 +44,14 @@ class TestCryptsyPrivate(unittest.TestCase):
         pass
 
     def test_one(self):
-        with CryptsyMock({'allmytrades': 'all_my_trades.json'}):
+        responses = {
+            'allmytrades': 'all_my_trades.json',
+            'getmarkets': 'get_markets.json'
+        }
+        with CryptsyMock(responses):
             trade = Cryptsy('key', 'secret').get_my_trades()[0]
-            self.assertEqual(trade['tradeid'], u'27208199')
+            self.assertTrue(isinstance(trade, cryptex.trade.Buy))
+            self.assertEqual(trade.trade_id, u'27208199')
 
 if __name__ == '__main__':
     unittest.main()
