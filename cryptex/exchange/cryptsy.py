@@ -8,7 +8,7 @@ from cryptex.exchange import Exchange
 from cryptex.trade import Sell, Buy
 from cryptex.order import SellOrder, BuyOrder
 from cryptex.transaction import Transaction, Deposit, Withdrawal
-from cryptex.exchange.single_endpoint import SingleEndpoint, SignedSingleEndpoint
+from cryptex.exchange.single_endpoint import SingleEndpointAPI
 
 
 class CryptsyBase(object):
@@ -42,24 +42,25 @@ class CryptsyBase(object):
         aware_time = cryptsy_time.normalize(cryptsy_time.localize(naive_time)).astimezone(pytz.utc)
         return aware_time
 
-class CryptsyPublic(CryptsyBase, SingleEndpoint):
-    API_ENDPOINT = 'http://pubapi.cryptsy.com/api.php'
+class CryptsyPublic(CryptsyBase):
 
-    def perform_get_request(self, method='', params={}):
-        return super(CryptsyPublic, self).perform_get_request(method, params)
+    def __init__(self):
+        super(CryptsyPublic, self).__init__()
+        self.api = SingleEndpointAPI('http://pubapi.cryptsy.com/api.php')
 
     def get_market_data(self, market_id=None):
         '''
         General Market Data
         '''
+        params = {}
         if market_id:
-            params = {'method': 'singlemarketdata',
-                    'marketid': market_id}
+            method = 'singlemarketdata'
+            params = {'marketid': market_id}
         else:
-            params = {'method': 'marketdatav2'}
+            method = 'marketdatav2'
 
         market_data = {}
-        for key, market in self.perform_get_request(params=params)['markets'].iteritems():
+        for key, market in self.api.perform_request(method, params)['markets'].iteritems():
             market['lasttradetime'] = self._convert_datetime(market['lasttradetime'])
             for trade in market['recenttrades']:
                 trade['time'] = self._convert_datetime(trade['time'])
@@ -71,24 +72,21 @@ class CryptsyPublic(CryptsyBase, SingleEndpoint):
         '''
         General Orderbook Data
         '''
+        params = {}
         if market_id:
-            params = {'method': 'singleorderdata',
-                    'marketid': market_id}
+            method = 'singleorderdata'
+            params = {'marketid': market_id}
         else:
-            params = {'method': 'orderdata'}
-        return self.perform_get_request(params=params)
+            method = 'orderdata'
+        return self.api.perform_request(method, params)
 
 
-class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
-    API_ENDPOINT = 'https://api.cryptsy.com/api'
+class Cryptsy(CryptsyBase, Exchange):
+
     def __init__(self, key, secret):
-        self.key = key
-        self.secret = secret
+        super(Cryptsy, self).__init__()
         self.market_currency_map = None
-        self.timezone = None
-
-    def perform_request(self, method, data={}):
-        return super(Cryptsy, self).perform_request(method, data)
+        self.api = SingleEndpointAPI('https://api.cryptsy.com/api', key, secret)
 
     def _convert_datetime(self, time_str):
         """
@@ -101,7 +99,7 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
 
     def _get_market_currency_map(self):
         if self.market_currency_map is None:
-            markets = self.perform_request('getmarkets')
+            markets = self.api.perform_request('getmarkets')
             self.market_currency_map = {
                 m['marketid']:
                 (m['primary_currency_code'], m['secondary_currency_code'])
@@ -127,10 +125,10 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
         return market[0][0]
 
     def _get_info(self):
-        return self.perform_request('getinfo')
+        return self.api.perform_request('getinfo')
 
     def get_markets(self):
-        return [m[1] for m in self._get_market_currency_map().iteritems()]
+        return [m for m in self._get_market_currency_map().values()]
 
     def _format_trade(self, trade):
         if trade['tradetype'] == 'Buy':
@@ -156,10 +154,10 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
     def get_my_trades(self, limit=200, market=None):
         params = {'limit': limit}
         if market is None:
-            trades = self.perform_request('allmytrades', params)
+            trades = self.api.perform_request('allmytrades', params)
         else:
             params['marketid'] = self._get_market_id(market)
-            trades = self.perform_request('mytrades', params)
+            trades = self.api.perform_request('mytrades', params)
             for index, trade in enumerate(trades):
                 trade['marketid'] = params['marketid']
                 trades[index] = trade
@@ -186,29 +184,29 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
     def get_my_open_orders(self, market=None):
         if market:
             market_id = self._get_market_id(market)
-            orders = self.perform_request('myorders', {'marketid': market_id})
+            orders = self.api.perform_request('myorders', {'marketid': market_id})
             # response does not contain market_id
             for index, order in enumerate(orders):
                 order[u'marketid'] = market_id
                 orders[index] = order
         else:
-            orders = self.perform_request('allmyorders')
+            orders = self.api.perform_request('allmyorders')
         return [self._format_order(o) for o in orders]
 
     def get_market_orders(self, market):
         market_id = self._get_market_id(market)
-        return self.perform_request('marketorders', {'marketid': market_id})
+        return self.api.perform_request('marketorders', {'marketid': market_id})
 
     def get_market_trades(self, market):
         market_id = self._get_market_id(market)
-        trades = self.perform_request('markettrades', {'marketid': market_id})
+        trades = self.api.perform_request('markettrades', {'marketid': market_id})
         for index, trade in enumerate(trades):
             trade['datetime'] = self._convert_datetime(trade['datetime'])
             trades[index] = trade
         return trades
 
     def cancel_order(self, order_id):
-        self.perform_request('cancelorder', {'orderid': order_id})
+        self.api.perform_request('cancelorder', {'orderid': order_id})
         return None
 
 
@@ -219,7 +217,7 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
             'quantity': quantity,
             'price': price
         }
-        return self.perform_request('createorder', params)
+        return self.api.perform_request('createorder', params)
 
     def buy(self, market, quantity, price):
         market_id = self._get_market_id(market)
@@ -233,7 +231,7 @@ class Cryptsy(CryptsyBase, Exchange, SignedSingleEndpoint):
 
     def get_my_transactions(self, limit=None):
         transactions = []
-        for t in self.perform_request('mytransactions'):
+        for t in self.api.perform_request('mytransactions'):
             tx_type = None
             if t['type'] == 'Withdrawal':
                 tx_type = Withdrawal
