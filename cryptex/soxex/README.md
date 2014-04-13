@@ -18,11 +18,11 @@ with websocket API's, including [blockchain.info](http://blockchain.info),
 Because each service offers a different set of API's, I have listed the
 functionality of each below.
 
-| Service           | subscribe\_txs | subscribe\_address | subscribe\_ticker |
-| ----------------- | -------------- | ------------------ | ---------- ------ |
-| blockchain.info   | YES            | YES                | NO                |
-| BitStamp          | YES            | NO                 | NO                |
-| Cryptsy           | YES            | NO                 | YES               |
+Service|subscribe\_txs|subscribe\_address|subscribe\_ticker
+-------|--------------|------------------|-----------------
+blockchain.info|YES|YES|NO|
+BitStamp|YES|NO|NO|
+Cryptsy|YES|NO|YES|
 
 In services where it is supported, there are also unsubscribe\_\* functions so
 that you do not need to completely close the connection in order to cut
