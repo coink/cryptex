@@ -110,15 +110,14 @@ class BTCEPublic():
         return response
 
 class BTCE(Exchange):
-    API_ENDPOINT = 'https://btc-e.com/tapi'
+
     def __init__(self, key, secret):
-        self.key = key
-        self.secret = secret
         self.public = BTCEPublic()
+        self.api = SingleEndpointAPI('https://btc-e.com/tapi', key, secret)
 
     def perform_request(self, method, data={}):
         try:
-            return super(BTCE, self).perform_request(method, data)
+            return self.api.perform_request(method, data)
         except APIException as e:
             if e.message == 'no orders':
                 return {}
@@ -126,7 +125,7 @@ class BTCE(Exchange):
                 raise e
     @staticmethod
     def _format_trade(trade_id, trade):
-        base, counter = BTCE._pair_to_market(trade['pair'])
+        base, counter = BTCEUtil.pair_to_market(trade['pair'])
         if trade['type'] == 'buy':
             trade_type = Buy
         else:
@@ -136,7 +135,7 @@ class BTCE(Exchange):
             trade_id = trade_id,
             base_currency = base.upper(),
             counter_currency = counter.upper(),
-            datetime = BTCE._format_timestamp(trade['timestamp']),
+            datetime = BTCEUtil.format_timestamp(trade['timestamp']),
             order_id = trade['order_id'],
             amount = trade['amount'],
             price = trade['rate'],
@@ -153,20 +152,20 @@ class BTCE(Exchange):
         else:
             order_type = SellOrder
 
-        base, counter = BTCE._pair_to_market(order['pair'])
+        base, counter = BTCEUtil.pair_to_market(order['pair'])
 
         return order_type(
             order_id = order_id,
             base_currency = base.upper(),
             counter_currency = counter.upper(),
-            datetime = BTCE._format_timestamp(order['timestamp_created']),
+            datetime = BTCEUtil.format_timestamp(order['timestamp_created']),
             amount = order['amount'],
             price = order['rate']
         )
 
     def get_my_open_orders(self):
         orders = self.perform_request('ActiveOrders')
-        return [BTCE._format_order(o_id, o) for o_id, o in orders.iteritems()]
+        return [self._format_order(o_id, o) for o_id, o in orders.iteritems()]
 
     def cancel_order(self, order_id):
         self.perform_request('CancelOrder', {'order_id': order_id})
@@ -174,13 +173,13 @@ class BTCE(Exchange):
 
     def get_markets(self):
         return [
-            BTCE._pair_to_market(pair)
+            BTCEUtil.pair_to_market(pair)
             for pair in self.public.get_info()['pairs']
         ]
 
     def _create_order(self, market, order_type, quantity, price):
         params = {
-            'pair': BTCE._market_to_pair(market),
+            'pair': BTCEUtil.market_to_pair(market),
             'type': order_type,
             'amount': quantity,
             'rate': price
@@ -201,7 +200,7 @@ class BTCE(Exchange):
             if t['type'] == 1:
                 # Assume no fees for deopsit
                 transactions.append(Deposit(tid,
-                                            self._format_timestamp(t['timestamp']),
+                                            BTCEUtil.format_timestamp(t['timestamp']),
                                             t['currency'],
                                             t['amount'],
                                             '',
@@ -215,7 +214,7 @@ class BTCE(Exchange):
                     address = ''
                 # Withdraw fees are not provided by BTC-e API
                 transactions.append(Withdrawal(tid,
-                                            self._format_timestamp(t['timestamp']),
+                                            BTCEUtil.format_timestamp(t['timestamp']),
                                             t['currency'],
                                             t['amount'],
                                             address
