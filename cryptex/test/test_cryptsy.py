@@ -117,13 +117,39 @@ class TestCryptsyPrivate(unittest.TestCase):
         with CryptsyMock(responses):
             Cryptsy('key', 'secret').cancel_order(u'12345')
 
-    def test_canel_order_fail(self):
+    def test_cancel_order_fail(self):
         responses = {
             'cancelorder': 'cancel_order_failure.json',
         }
         with CryptsyMock(responses):
             c = Cryptsy('key', 'secret')
             self.assertRaises(APIException, c.cancel_order, u'12345')
+
+    def test_buy(self):
+        responses = {
+            'createorder': 'buy_order.json',
+            'getmarkets': 'get_markets.json',
+        }
+        with CryptsyMock(responses):
+            market = ('DOGE', 'BTC')
+            amount = "94.93989121"
+            price = "0.00000120"
+            c = Cryptsy('key', 'secret')
+            order_id = c.buy(market, amount, price)
+        self.assertEqual(order_id, u'76447016')
+
+    def test_sell(self):
+        responses = {
+            'createorder': 'sell_order.json',
+            'getmarkets': 'get_markets.json',
+        }
+        with CryptsyMock(responses):
+            market = ('LTC', 'BTC')
+            amount = "10000"
+            price = "0.00000200"
+            c = Cryptsy('key', 'secret')
+            order_id = c.sell(market, amount, price)
+        self.assertEqual(order_id, u'76450269')
 
 if __name__ == '__main__':
     unittest.main()
