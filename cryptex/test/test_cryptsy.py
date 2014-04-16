@@ -109,5 +109,12 @@ class TestCryptsyPrivate(unittest.TestCase):
         self.assertEqual(buy_order.price, Decimal('0.00000120'))
         self.assertEqual(buy_order.amount, Decimal('94.93989121'))
 
+    def test_cancel_order(self):
+        responses = {
+            'cancelorder': 'cancel_order_success.json',
+        }
+        with CryptsyMock(responses):
+            Cryptsy('key', 'secret').cancel_order('12345')
+
 if __name__ == '__main__':
     unittest.main()
