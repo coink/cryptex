@@ -10,6 +10,7 @@ import pytz
 
 from cryptex.exchange import Cryptsy
 import cryptex.trade
+import cryptex.order
 
 test_dir = os.path.dirname(os.path.realpath(__file__))
 mock_dir = os.path.join(test_dir, 'mocks')
@@ -52,7 +53,7 @@ class TestCryptsyPrivate(unittest.TestCase):
         }
         with CryptsyMock(responses):
             markets = Cryptsy('key', 'secret').get_markets()
-        self.assertTrue(len(markets), 3)
+        self.assertEqual(len(markets), 3)
         self.assertIn(('DOGE', 'LTC'), markets)
         self.assertIn(('LTC', 'BTC'), markets)
         self.assertIn(('DOGE', 'BTC'), markets)
@@ -73,6 +74,40 @@ class TestCryptsyPrivate(unittest.TestCase):
         self.assertEqual(trade.amount, Decimal('62661.89842537'))
         self.assertEqual(trade.price, Decimal('0.00000180'))
         self.assertEqual(trade.fee, Decimal('0.000225580'))
+
+    def test_empty_open_orders(self):
+        responses = {
+            'allmyorders': 'all_my_orders_empty.json',
+        }
+        with CryptsyMock(responses):
+            orders = Cryptsy('key', 'secret').get_my_open_orders()
+        self.assertEqual(len(orders), 0)
+
+    def test_open_orders(self):
+        responses = {
+            'allmyorders': 'all_my_orders.json',
+            'getmarkets': 'get_markets.json',
+        }
+        with CryptsyMock(responses):
+            orders = Cryptsy('key', 'secret').get_my_open_orders()
+        self.assertEqual(len(orders), 2)
+        sell_order, buy_order = orders
+
+        self.assertTrue(isinstance(sell_order, cryptex.order.SellOrder))
+        self.assertEqual(sell_order.order_id, u'76424299')
+        self.assertEqual(sell_order.base_currency, u'DOGE')
+        self.assertEqual(sell_order.counter_currency, u'BTC')
+        self.assertEqual(sell_order.datetime, datetime(2014, 4, 16, 1, 18, 6, tzinfo=pytz.timezone('US/Eastern')))
+        self.assertEqual(sell_order.price, Decimal('0.00000200'))
+        self.assertEqual(sell_order.amount, Decimal('10000.00000000'))
+
+        self.assertTrue(isinstance(buy_order, cryptex.order.BuyOrder))
+        self.assertEqual(buy_order.order_id, u'76433518')
+        self.assertEqual(buy_order.base_currency, u'DOGE')
+        self.assertEqual(buy_order.counter_currency, u'BTC')
+        self.assertEqual(buy_order.datetime, datetime(2014, 4, 16, 1, 34, 14, tzinfo=pytz.timezone('US/Eastern')))
+        self.assertEqual(buy_order.price, Decimal('0.00000120'))
+        self.assertEqual(buy_order.amount, Decimal('94.93989121'))
 
 if __name__ == '__main__':
     unittest.main()
