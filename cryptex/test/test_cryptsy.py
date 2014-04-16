@@ -151,5 +151,15 @@ class TestCryptsyPrivate(unittest.TestCase):
             order_id = c.sell(market, amount, price)
         self.assertEqual(order_id, u'76450269')
 
+    def test_get_balances(self):
+        responses = {
+            'getinfo': 'get_info.json'
+        }
+        with CryptsyMock(responses):
+            c = Cryptsy('key', 'secret')
+            balances = c.get_my_funds()
+        self.assertEqual(balances['Points'], u'0.10721000')
+        self.assertEqual(balances['DOGE'], u'42561.89842537')
+
 if __name__ == '__main__':
     unittest.main()

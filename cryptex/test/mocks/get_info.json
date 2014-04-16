@@ -1,0 +1,25 @@
+{
+  "success": "1",
+  "return": {
+    "balances_available": {
+      "Points": "0.10721000",
+      "DOGE": "42561.89842537"
+    },
+    "balances_available_btc": {
+      "Points": "0.00008702",
+      "DOGE": "0.05618171"
+    },
+    "balances_hold": {
+      "DOGE": "20000.00000000",
+      "BTC": "0.00011416"
+    },
+    "balances_hold_btc": {
+      "DOGE": "0.00000000",
+      "BTC": "0.00000000"
+    },
+    "servertimestamp": 1397628475,
+    "servertimezone": "EST",
+    "serverdatetime": "2014-04-16 02:07:55",
+    "openordercount": 3
+  }
+}
