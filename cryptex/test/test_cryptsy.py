@@ -9,6 +9,7 @@ import requests
 import pytz
 
 from cryptex.exchange import Cryptsy
+from cryptex.exception import APIException
 import cryptex.trade
 import cryptex.order
 
@@ -114,7 +115,15 @@ class TestCryptsyPrivate(unittest.TestCase):
             'cancelorder': 'cancel_order_success.json',
         }
         with CryptsyMock(responses):
-            Cryptsy('key', 'secret').cancel_order('12345')
+            Cryptsy('key', 'secret').cancel_order(u'12345')
+
+    def test_canel_order_fail(self):
+        responses = {
+            'cancelorder': 'cancel_order_failure.json',
+        }
+        with CryptsyMock(responses):
+            c = Cryptsy('key', 'secret')
+            self.assertRaises(APIException, c.cancel_order, u'12345')
 
 if __name__ == '__main__':
     unittest.main()
