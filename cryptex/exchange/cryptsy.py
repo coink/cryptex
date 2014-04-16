@@ -173,7 +173,6 @@ class Cryptsy(CryptsyBase, Exchange):
 
         return order_type(
             order_id = order['orderid'],
-            order_type = order_type,
             base_currency = base,
             counter_currency = counter,
             datetime = self._convert_datetime(order['created']),
