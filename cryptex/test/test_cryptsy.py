@@ -171,7 +171,7 @@ class TestCryptsyPrivate(unittest.TestCase):
             transactions = c.get_my_transactions()
         self.assertEquals(len(transactions), 3)
         tx = transactions[0]
-        self.assertTrue(isinstance(tx, cryptex.transaction.Transaction))
+        self.assertTrue(isinstance(tx, cryptex.transaction.Deposit))
         self.assertEqual(tx.amount, Decimal("0.00902000"))
         self.assertEqual(tx.currency, u"Points")
         self.assertEqual(tx.datetime, datetime(2014, 3, 3, 9, 7, 14, tzinfo=pytz.utc))
