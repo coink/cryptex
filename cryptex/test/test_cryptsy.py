@@ -158,7 +158,7 @@ class TestCryptsyPrivate(unittest.TestCase):
         }
         with CryptsyMock(responses):
             c = Cryptsy('key', 'secret')
-            balances = c.get_my_funds()
+            balances = c.get_my_balances()
         self.assertEqual(balances['Points'], Decimal('0.10721000'))
         self.assertEqual(balances['DOGE'], Decimal('42561.89842537'))
 

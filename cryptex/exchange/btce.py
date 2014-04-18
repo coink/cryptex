@@ -221,7 +221,7 @@ class BTCE(Exchange):
                                     ))
         return transactions
 
-    def get_my_funds(self):
+    def get_my_balances(self):
         funds = {}
         for key, value in self.perform_request('getInfo')['funds'].iteritems():
             funds[key.upper()] = value

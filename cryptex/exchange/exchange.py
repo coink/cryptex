@@ -37,7 +37,7 @@ class Exchange(object):
     def get_my_transactions(self, limit=None):
         raise NotImplementedError
 
-    def get_my_funds(self):
+    def get_my_balances(self):
         """
         Returns a dict that represent all the user's funds (not on orders) as {'CURRENCY': Decimal(<Value>), ...}.
         """
