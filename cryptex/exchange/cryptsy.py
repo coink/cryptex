@@ -251,4 +251,5 @@ class Cryptsy(CryptsyBase, Exchange):
         return transactions
 
     def get_my_funds(self):
-        return self._get_info()['balances_available']
+        balances = self._get_info()['balances_available']
+        return {k: Decimal(v) for (k,v) in balances.iteritems()}
