@@ -235,18 +235,14 @@ class Cryptsy(CryptsyBase, Exchange):
             if t['type'] == 'Withdrawal':
                 tx_type = Withdrawal
             elif t['type'] == 'Deposit':
-                if t['currency'] == 'Points':
-                    # CryptyPoints ar'nt real deposits, so handle them as "unknown" transaction
-                    tx_type = Transaction
-                else:
-                    tx_type = Deposit
+                tx_type = Deposit
             if tx_type:
                 transactions.append(tx_type(t['trxid'],
                                             self._convert_datetime(t['datetime']),
                                             t['currency'],
-                                            t['amount'],
+                                            Decimal(t['amount']),
                                             t['address'],
-                                            t['fee'],
+                                            Decimal(t['fee']),
                                     ))
         return transactions
 
