@@ -1,0 +1,38 @@
+{
+  "success": "1",
+  "return": [
+    {
+      "currency": "Points",
+      "timestamp": 1393837634,
+      "datetime": "2014-03-03 04:07:14",
+      "timezone": "EST",
+      "type": "Deposit",
+      "address": null,
+      "amount": "0.00902000",
+      "fee": "0.00000000",
+      "trxid": "Points earned on date 2014-03-02"
+    },
+    {
+      "currency": "BTC",
+      "timestamp": 1390258972,
+      "datetime": "2014-01-20 18:02:52",
+      "timezone": "EST",
+      "type": "Withdrawal",
+      "address": "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy",
+      "amount": "0.11661477",
+      "fee": "0.00050000",
+      "trxid": "b9B45AC6C3cB5Ab9DC2ad33CE76353c0c0AcDB59b8Edd6c3f62cbFdf78bAAE35"
+    },
+    {
+      "currency": "DOGE",
+      "timestamp": 1387785148,
+      "datetime": "2013-12-23 02:52:28",
+      "timezone": "EST",
+      "type": "Deposit",
+      "address": "DJ98t1WpEZ73CNmQviecrnyiWrnqRhWNLy",
+      "amount": "2463.57149311",
+      "fee": "0.00000000",
+      "trxid": "B2b1a19A6A27907cdfd422f3fbBd57cdC36fbdb121Cd5aFbaE1A738aD7B151a4"
+    }
+  ]
+}

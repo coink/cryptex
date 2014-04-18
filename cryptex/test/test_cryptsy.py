@@ -12,6 +12,7 @@ from cryptex.exchange import Cryptsy
 from cryptex.exception import APIException
 import cryptex.trade
 import cryptex.order
+import cryptex.transaction
 
 test_dir = os.path.dirname(os.path.realpath(__file__))
 mock_dir = os.path.join(test_dir, 'mocks')
@@ -160,6 +161,40 @@ class TestCryptsyPrivate(unittest.TestCase):
             balances = c.get_my_funds()
         self.assertEqual(balances['Points'], u'0.10721000')
         self.assertEqual(balances['DOGE'], u'42561.89842537')
+
+    def test_get_transactions(self):
+        responses = {
+            'mytransactions': 'my_transactions.json'
+        }
+        with CryptsyMock(responses):
+            c = Cryptsy('key', 'secret')
+            transactions = c.get_my_transactions()
+        self.assertEquals(len(transactions), 3)
+        tx = transactions[0]
+        self.assertTrue(isinstance(tx, cryptex.transaction.Transaction))
+        self.assertEqual(tx.amount, Decimal("0.00902000"))
+        self.assertEqual(tx.currency, u"Points")
+        self.assertEqual(tx.datetime, datetime(2014, 4, 17, 9, 7, 14, tzinfo=pytz.utc))
+        self.assertEqual(tx.fee, Decimal("0.00000000"))
+        self.assertEqual(tx.address, None)
+
+        tx = transactions[1]
+        self.assertTrue(isinstance(tx, cryptex.transaction.Withdrawal))
+        self.assertEqual(tx.amount, Decimal("0.11661477"))
+        self.assertEqual(tx.currency, u"BTC")
+        self.assertEqual(tx.datetime, datetime(2014, 1, 20, 23, 2, 52, tzinfo=pytz.utc))
+        self.assertEqual(tx.fee, Decimal("0.00050000"))
+        self.assertEqual(tx.address, u'3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy')
+        self.assertEqual(tx.transaction_id, u'b9B45AC6C3cB5Ab9DC2ad33CE76353c0c0AcDB59b8Edd6c3f62cbFdf78bAAE35')
+
+        tx = transactions[2]
+        self.assertTrue(isinstance(tx, cryptex.transaction.Deposit))
+        self.assertEqual(tx.amount, Decimal("2463.57149311"))
+        self.assertEqual(tx.currency, u"DOGE")
+        self.assertEqual(tx.datetime, datetime(2013, 12, 23, 7, 52, 28, tzinfo=pytz.utc))
+        self.assertEqual(tx.fee, Decimal("0.00000000"))
+        self.assertEqual(tx.address, u'DJ98t1WpEZ73CNmQviecrnyiWrnqRhWNLy')
+        self.assertEqual(tx.transaction_id, u'B2b1a19A6A27907cdfd422f3fbBd57cdC36fbdb121Cd5aFbaE1A738aD7B151a4')
 
 if __name__ == '__main__':
     unittest.main()
