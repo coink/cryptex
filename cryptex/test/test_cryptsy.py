@@ -1,13 +1,11 @@
 import os
-import io
 from datetime import datetime
 from decimal import Decimal
 import unittest
 
-import httpretty
-import requests
 import pytz
 
+from cryptex.test.api_mock import APIMock
 from cryptex.exchange import Cryptsy
 from cryptex.exception import APIException
 import cryptex.trade
@@ -16,31 +14,6 @@ import cryptex.transaction
 
 test_dir = os.path.dirname(os.path.realpath(__file__))
 mock_dir = os.path.join(test_dir, 'mocks', 'cryptsy')
-
-class CryptsyMock():
-    """
-    Responses should be a {method: filename} map
-    """
-    def __init__(self, mock_dir, responses):
-        self.responses = responses
-        self.mock_dir = mock_dir
-
-    def request_callback(self, request, uri, headers):
-        method = request.parsed_body[u'method'][0]
-        filename = self.responses[method]
-        with io.open(os.path.join(self.mock_dir, filename), 'r') as f:
-            contents = f.read()
-        return (200, headers, contents)
-
-    def __enter__(self):
-        httpretty.enable()
-        httpretty.register_uri(httpretty.POST, "https://api.cryptsy.com/api",
-                               body=self.request_callback)
-
-    def __exit__(self, type, value, traceback):
-        httpretty.disable()
-        httpretty.reset()
-
 
 class TestCryptsyPrivate(unittest.TestCase):
 
@@ -54,7 +27,7 @@ class TestCryptsyPrivate(unittest.TestCase):
         responses = {
             'getmarkets': 'get_markets.json',
         }
-        with CryptsyMock(mock_dir, responses):
+        with APIMock(mock_dir, responses):
             markets = Cryptsy('key', 'secret').get_markets()
         self.assertEqual(len(markets), 3)
         self.assertIn(('DOGE', 'LTC'), markets)
@@ -66,7 +39,7 @@ class TestCryptsyPrivate(unittest.TestCase):
             'allmytrades': 'all_my_trades.json',
             'getmarkets': 'get_markets.json',
         }
-        with CryptsyMock(mock_dir, responses):
+        with APIMock(mock_dir, responses):
             trade = Cryptsy('key', 'secret').get_my_trades()[0]
         self.assertTrue(isinstance(trade, cryptex.trade.Buy))
         self.assertEqual(trade.trade_id, u'27208199')
@@ -82,7 +55,7 @@ class TestCryptsyPrivate(unittest.TestCase):
         responses = {
             'allmyorders': 'all_my_orders_empty.json',
         }
-        with CryptsyMock(mock_dir, responses):
+        with APIMock(mock_dir, responses):
             orders = Cryptsy('key', 'secret').get_my_open_orders()
         self.assertEqual(len(orders), 0)
 
@@ -91,7 +64,7 @@ class TestCryptsyPrivate(unittest.TestCase):
             'allmyorders': 'all_my_orders.json',
             'getmarkets': 'get_markets.json',
         }
-        with CryptsyMock(mock_dir, responses):
+        with APIMock(mock_dir, responses):
             orders = Cryptsy('key', 'secret').get_my_open_orders()
         self.assertEqual(len(orders), 2)
         sell_order, buy_order = orders
@@ -116,14 +89,14 @@ class TestCryptsyPrivate(unittest.TestCase):
         responses = {
             'cancelorder': 'cancel_order_success.json',
         }
-        with CryptsyMock(mock_dir, responses):
+        with APIMock(mock_dir, responses):
             Cryptsy('key', 'secret').cancel_order(u'12345')
 
     def test_cancel_order_fail(self):
         responses = {
             'cancelorder': 'cancel_order_failure.json',
         }
-        with CryptsyMock(mock_dir, responses):
+        with APIMock(mock_dir, responses):
             c = Cryptsy('key', 'secret')
             self.assertRaises(APIException, c.cancel_order, u'12345')
 
@@ -132,7 +105,7 @@ class TestCryptsyPrivate(unittest.TestCase):
             'createorder': 'buy_order.json',
             'getmarkets': 'get_markets.json',
         }
-        with CryptsyMock(mock_dir, responses):
+        with APIMock(mock_dir, responses):
             market = ('DOGE', 'BTC')
             amount = "94.93989121"
             price = "0.00000120"
@@ -145,7 +118,7 @@ class TestCryptsyPrivate(unittest.TestCase):
             'createorder': 'sell_order.json',
             'getmarkets': 'get_markets.json',
         }
-        with CryptsyMock(mock_dir, responses):
+        with APIMock(mock_dir, responses):
             market = ('LTC', 'BTC')
             amount = "10000"
             price = "0.00000200"
@@ -157,7 +130,7 @@ class TestCryptsyPrivate(unittest.TestCase):
         responses = {
             'getinfo': 'get_info.json'
         }
-        with CryptsyMock(mock_dir, responses):
+        with APIMock(mock_dir, responses):
             c = Cryptsy('key', 'secret')
             balances = c.get_my_balances()
         self.assertEqual(balances['Points'], Decimal('0.10721000'))
@@ -167,7 +140,7 @@ class TestCryptsyPrivate(unittest.TestCase):
         responses = {
             'mytransactions': 'my_transactions.json'
         }
-        with CryptsyMock(mock_dir, responses):
+        with APIMock(mock_dir, responses):
             c = Cryptsy('key', 'secret')
             transactions = c.get_my_transactions()
         self.assertEquals(len(transactions), 3)
