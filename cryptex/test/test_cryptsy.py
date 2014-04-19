@@ -15,7 +15,7 @@ import cryptex.order
 import cryptex.transaction
 
 test_dir = os.path.dirname(os.path.realpath(__file__))
-mock_dir = os.path.join(test_dir, 'mocks')
+mock_dir = os.path.join(test_dir, 'mocks', 'cryptsy')
 
 class CryptsyMock():
     """
