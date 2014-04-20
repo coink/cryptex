@@ -1,0 +1,21 @@
+{
+  "success": 1,
+  "return": {
+    "order_id": 212120498,
+    "funds": {
+      "usd": 0,
+      "btc": 0.02950001,
+      "ltc": 0,
+      "nmc": 0,
+      "rur": 0,
+      "eur": 0,
+      "nvc": 0,
+      "trc": 0,
+      "ppc": 0,
+      "ftc": 0,
+      "xpm": 0,
+      "cnh": 0,
+      "gbp": 2.88319206
+    }
+  }
+}
