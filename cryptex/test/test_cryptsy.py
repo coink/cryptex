@@ -12,8 +12,10 @@ import cryptex.trade
 import cryptex.order
 import cryptex.transaction
 
-test_dir = os.path.dirname(os.path.realpath(__file__))
-mock_dir = os.path.join(test_dir, 'mocks', 'cryptsy')
+def cryptsy_mock(responses):
+    test_dir = os.path.dirname(os.path.realpath(__file__))
+    mock_dir = os.path.join(test_dir, 'mocks', 'cryptsy')
+    return APIMock("https://api.cryptsy.com/api", mock_dir, responses)
 
 class TestCryptsyPrivate(unittest.TestCase):
 
@@ -27,7 +29,7 @@ class TestCryptsyPrivate(unittest.TestCase):
         responses = {
             'getmarkets': 'get_markets.json',
         }
-        with APIMock(mock_dir, responses):
+        with cryptsy_mock(responses):
             markets = Cryptsy('key', 'secret').get_markets()
         self.assertEqual(len(markets), 3)
         self.assertIn(('DOGE', 'LTC'), markets)
@@ -39,7 +41,7 @@ class TestCryptsyPrivate(unittest.TestCase):
             'allmytrades': 'all_my_trades.json',
             'getmarkets': 'get_markets.json',
         }
-        with APIMock(mock_dir, responses):
+        with cryptsy_mock(responses):
             trade = Cryptsy('key', 'secret').get_my_trades()[0]
         self.assertTrue(isinstance(trade, cryptex.trade.Buy))
         self.assertEqual(trade.trade_id, u'27208199')
@@ -55,7 +57,7 @@ class TestCryptsyPrivate(unittest.TestCase):
         responses = {
             'allmyorders': 'all_my_orders_empty.json',
         }
-        with APIMock(mock_dir, responses):
+        with cryptsy_mock(responses):
             orders = Cryptsy('key', 'secret').get_my_open_orders()
         self.assertEqual(len(orders), 0)
 
@@ -64,7 +66,7 @@ class TestCryptsyPrivate(unittest.TestCase):
             'allmyorders': 'all_my_orders.json',
             'getmarkets': 'get_markets.json',
         }
-        with APIMock(mock_dir, responses):
+        with cryptsy_mock(responses):
             orders = Cryptsy('key', 'secret').get_my_open_orders()
         self.assertEqual(len(orders), 2)
         sell_order, buy_order = orders
@@ -89,14 +91,14 @@ class TestCryptsyPrivate(unittest.TestCase):
         responses = {
             'cancelorder': 'cancel_order_success.json',
         }
-        with APIMock(mock_dir, responses):
+        with cryptsy_mock(responses):
             Cryptsy('key', 'secret').cancel_order(u'12345')
 
     def test_cancel_order_fail(self):
         responses = {
             'cancelorder': 'cancel_order_failure.json',
         }
-        with APIMock(mock_dir, responses):
+        with cryptsy_mock(responses):
             c = Cryptsy('key', 'secret')
             self.assertRaises(APIException, c.cancel_order, u'12345')
 
@@ -105,7 +107,7 @@ class TestCryptsyPrivate(unittest.TestCase):
             'createorder': 'buy_order.json',
             'getmarkets': 'get_markets.json',
         }
-        with APIMock(mock_dir, responses):
+        with cryptsy_mock(responses):
             market = ('DOGE', 'BTC')
             amount = "94.93989121"
             price = "0.00000120"
@@ -118,7 +120,7 @@ class TestCryptsyPrivate(unittest.TestCase):
             'createorder': 'sell_order.json',
             'getmarkets': 'get_markets.json',
         }
-        with APIMock(mock_dir, responses):
+        with cryptsy_mock(responses):
             market = ('LTC', 'BTC')
             amount = "10000"
             price = "0.00000200"
@@ -130,7 +132,7 @@ class TestCryptsyPrivate(unittest.TestCase):
         responses = {
             'getinfo': 'get_info.json'
         }
-        with APIMock(mock_dir, responses):
+        with cryptsy_mock(responses):
             c = Cryptsy('key', 'secret')
             balances = c.get_my_balances()
         self.assertEqual(balances['Points'], Decimal('0.10721000'))
@@ -140,7 +142,7 @@ class TestCryptsyPrivate(unittest.TestCase):
         responses = {
             'mytransactions': 'my_transactions.json'
         }
-        with APIMock(mock_dir, responses):
+        with cryptsy_mock(responses):
             c = Cryptsy('key', 'secret')
             transactions = c.get_my_transactions()
         self.assertEquals(len(transactions), 3)

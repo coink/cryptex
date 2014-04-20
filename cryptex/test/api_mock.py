@@ -7,7 +7,8 @@ class APIMock():
     """
     Responses should be a {method: filename} map
     """
-    def __init__(self, mock_dir, responses):
+    def __init__(self, mock_url, mock_dir, responses):
+        self.mock_url = mock_url
         self.responses = responses
         self.mock_dir = mock_dir
 
@@ -20,7 +21,7 @@ class APIMock():
 
     def __enter__(self):
         httpretty.enable()
-        httpretty.register_uri(httpretty.POST, "https://api.cryptsy.com/api",
+        httpretty.register_uri(httpretty.POST, self.mock_url,
                                body=self.request_callback)
 
     def __exit__(self, type, value, traceback):
