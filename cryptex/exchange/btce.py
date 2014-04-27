@@ -1,6 +1,7 @@
 import datetime
 import pytz
 from urlparse import urljoin
+from decimal import Decimal
 
 import requests
 
@@ -58,7 +59,7 @@ class BTCEPublic():
             url += "/" + market_pair_component
         #print url
         r = requests.get(url, params=params)
-        return r.json()
+        return r.json(parse_float=Decimal)
 
     def get_info(self):
         '''
@@ -87,6 +88,15 @@ class BTCEPublic():
                 v['updated'] = BTCEUtil.format_timestamp(v['updated'])
 
         return results
+
+    def get_last_trade_prices(self):
+        def to_tuple(pair):
+            return tuple([s.upper() for s in pair.split('_')])
+
+        pairs = self.get_info()['pairs']
+        pairs = [to_tuple(p) for p in pairs]
+        info = self.get_ticker(pairs)
+        return {to_tuple(k): Decimal(v['last']) for k, v in info.iteritems()}
 
     def get_depth(self, market, limit=150):
         '''
