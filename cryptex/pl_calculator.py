@@ -53,7 +53,7 @@ class PLCalculator(object):
                 while total_amount < trade.amount:
                     oldest_buy = acc.pop()
                     total_amount += oldest_buy.amount
-                buy_amount = trade.amount - total_amount
+                buy_amount = total_amount - trade.amount
                 if buy_amount != Decimal('0'):
                     new_trade = Buy(None, base, counter, oldest_buy.datetime,
                                     None, buy_amount, oldest_buy.price) 
