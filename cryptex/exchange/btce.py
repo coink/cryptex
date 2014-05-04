@@ -119,6 +119,12 @@ class BTCEPublic():
                 t['timestamp'] = BTCEUtil.format_timestamp(t['timestamp'])
         return response
 
+    def get_markets(self):
+        return [
+            BTCEUtil.pair_to_market(pair)
+            for pair in self.get_info()['pairs']
+        ]
+
 class BTCE(Exchange):
 
     def __init__(self, key, secret):
@@ -180,12 +186,6 @@ class BTCE(Exchange):
     def cancel_order(self, order_id):
         self.perform_request('CancelOrder', {'order_id': order_id})
         return None
-
-    def get_markets(self):
-        return [
-            BTCEUtil.pair_to_market(pair)
-            for pair in self.public.get_info()['pairs']
-        ]
 
     def _create_order(self, market, order_type, quantity, price):
         params = {
