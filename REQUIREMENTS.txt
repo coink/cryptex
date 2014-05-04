@@ -1,1 +1,2 @@
 -e git+https://github.com/ekulyk/PythonPusherClient.git#egg=pusherclient
+-e git+https://github.com/liris/websocket-client.git#egg=websocket-client
