@@ -92,6 +92,9 @@ class CryptsyPublic(CryptsyBase):
             method = 'orderdata'
         return self.api.perform_request(method, params)
 
+    def get_markets(self):
+        return [tuple(m.split('/')) for m in self.get_market_data().keys()]
+
 
 class Cryptsy(CryptsyBase, Exchange):
 
@@ -138,9 +141,6 @@ class Cryptsy(CryptsyBase, Exchange):
 
     def _get_info(self):
         return self.api.perform_request('getinfo')
-
-    def get_markets(self):
-        return [m for m in self._get_market_currency_map().values()]
 
     def _format_trade(self, trade):
         if trade['tradetype'] == 'Buy':
