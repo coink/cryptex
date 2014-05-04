@@ -42,7 +42,8 @@ class PLCalculator(object):
         base, counter = market
         trades = self._get_trades(market)
 
-        def merge_trades(acc, trade):
+        acc = []
+        for trade in trades:
             if isinstance(trade, Buy):
                 new_trade = Buy(None, base, counter, trade.datetime, None,
                                 trade.amount, trade.price)
@@ -58,6 +59,4 @@ class PLCalculator(object):
                     new_trade = Buy(None, base, counter, oldest_buy.datetime,
                                     None, buy_amount, oldest_buy.price) 
                     acc.append(new_trade)
-            return acc
-            
-        return reduce(merge_trades, trades, [])
+        return acc
