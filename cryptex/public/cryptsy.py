@@ -2,9 +2,9 @@ from decimal import Decimal, InvalidOperation
 
 from cryptex.exchange.cryptsy import CryptsyBase
 from cryptex.exchange.single_endpoint import SingleEndpointAPI
-from cryptex.public.common import PublicCommon
+from cryptex.public.exchange_common import ExchangePublic
 
-class CryptsyPublic(CryptsyBase, PublicCommon):
+class CryptsyPublic(CryptsyBase, ExchangePublic):
 
     def __init__(self):
         super(CryptsyPublic, self).__init__()
@@ -58,4 +58,4 @@ class CryptsyPublic(CryptsyBase, PublicCommon):
         if self.markets is None:
             self.markets = [tuple(m.split('/')) for m in self.get_market_data().keys()]
 
-        return PublicCommon.get_markets(self)
+        return ExchangePublic.get_markets(self)

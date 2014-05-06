@@ -4,9 +4,9 @@ from urlparse import urljoin
 import requests
 
 from cryptex.exchange.btce import BTCEUtil
-from cryptex.public.common import PublicCommon
+from cryptex.public.exchange_common import ExchangePublic
 
-class BTCEPublic(PublicCommon):
+class BTCEPublic(ExchangePublic):
     """
     BTC-e public API https://btc-e.com/api/3/documentation
     All information is cached for 2 seconds on the server
@@ -109,5 +109,5 @@ class BTCEPublic(PublicCommon):
                 for pair in self.get_info()['pairs']
             ]
 
-        return PublicCommon.get_markets(self)
+        return ExchangePublic.get_markets(self)
 
