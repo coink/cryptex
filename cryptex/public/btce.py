@@ -16,8 +16,8 @@ class BTCEPublic():
     URL_ROOT = "https://btc-e.com/api/3/"
 
     def __init__(self):
-        self.markets = None
-        self.lookup = None
+        self.markets = []
+        self.lookup = {}
 
     def perform_request(self, method, markets=[], limit=0, ignore_invalid=False):
         """
