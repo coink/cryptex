@@ -15,6 +15,10 @@ class BTCEPublic():
     """
     URL_ROOT = "https://btc-e.com/api/3/"
 
+    def __init__(self):
+        self.markets = None
+        self.lookup = None
+
     def perform_request(self, method, markets=[], limit=0, ignore_invalid=False):
         """
         Perform a request against the BTC-e public API. Market paris
@@ -99,9 +103,29 @@ class BTCEPublic():
         return response
 
     def get_markets(self):
-        return [
-            BTCEUtil.pair_to_market(pair)
-            for pair in self.get_info()['pairs']
-        ]
+        if self.markets is None:
+            self.markets = [
+                BTCEUtil.pair_to_market(pair)
+                for pair in self.get_info()['pairs']
+            ]
 
+            flattened = set(y.lower() for x in self.markets for y in x)
+            self.lookup = { k: {} for k in flattened }
 
+            for pair in self.markets:
+                self.lookup[pair[0].lower()][pair[1].lower()] = pair
+                self.lookup[pair[1].lower()][pair[0].lower()] = pair
+
+        return self.markets
+
+    def market_with_currencies(self, currency_a, currency_b=None):
+        if self.lookup is None:
+            self.get_markets()
+
+        if currency_b is None and currency_a in self.lookup.keys():
+            return self.lookup[currency_a].values()
+
+        if currency_a in self.lookup.keys() and currency_b in self.lookup[currency_a].keys():
+            return self.lookup[currency_a][currency_b]
+
+        return None
