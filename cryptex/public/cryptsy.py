@@ -2,17 +2,18 @@ from decimal import Decimal, InvalidOperation
 
 from cryptex.exchange.cryptsy import CryptsyBase
 from cryptex.exchange.single_endpoint import SingleEndpointAPI
+from cryptex.public.common import PublicCommon
 
-class CryptsyPublic(CryptsyBase):
+class CryptsyPublic(CryptsyBase, PublicCommon):
 
     def __init__(self):
         super(CryptsyPublic, self).__init__()
         self.api = SingleEndpointAPI('http://pubapi.cryptsy.com/api.php')
 
     def get_market_data(self, market_id=None):
-        '''
+        """
         General Market Data
-        '''
+        """
         params = {}
         if market_id:
             method = 'singlemarketdata'
@@ -42,9 +43,9 @@ class CryptsyPublic(CryptsyBase):
         return trade_prices
 
     def get_order_data(self, market_id=None):
-        '''
+        """
         General Orderbook Data
-        '''
+        """
         params = {}
         if market_id:
             method = 'singleorderdata'
@@ -54,6 +55,7 @@ class CryptsyPublic(CryptsyBase):
         return self.api.perform_request(method, params)
 
     def get_markets(self):
-        return [tuple(m.split('/')) for m in self.get_market_data().keys()]
+        if self.markets is None:
+            self.markets = [tuple(m.split('/')) for m in self.get_market_data().keys()]
 
-
+        return PublicCommon.get_markets(self)

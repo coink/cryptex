@@ -4,8 +4,9 @@ from urlparse import urljoin
 import requests
 
 from cryptex.exchange.btce import BTCEUtil
+from cryptex.public.common import PublicCommon
 
-class BTCEPublic():
+class BTCEPublic(PublicCommon):
     """
     BTC-e public API https://btc-e.com/api/3/documentation
     All information is cached for 2 seconds on the server
@@ -16,8 +17,7 @@ class BTCEPublic():
     URL_ROOT = "https://btc-e.com/api/3/"
 
     def __init__(self):
-        self.markets = []
-        self.lookup = {}
+        super(BTCEPublic, self).__init__()
 
     def perform_request(self, method, markets=[], limit=0, ignore_invalid=False):
         """
@@ -109,23 +109,5 @@ class BTCEPublic():
                 for pair in self.get_info()['pairs']
             ]
 
-            flattened = set(y.lower() for x in self.markets for y in x)
-            self.lookup = { k: {} for k in flattened }
+        return PublicCommon.get_markets(self)
 
-            for pair in self.markets:
-                self.lookup[pair[0].lower()][pair[1].lower()] = pair
-                self.lookup[pair[1].lower()][pair[0].lower()] = pair
-
-        return self.markets
-
-    def market_with_currencies(self, currency_a, currency_b=None):
-        if self.lookup is None:
-            self.get_markets()
-
-        if currency_b is None and currency_a in self.lookup.keys():
-            return self.lookup[currency_a].values()
-
-        if currency_a in self.lookup.keys() and currency_b in self.lookup[currency_a].keys():
-            return self.lookup[currency_a][currency_b]
-
-        return None
