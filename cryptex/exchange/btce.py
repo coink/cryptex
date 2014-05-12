@@ -152,7 +152,7 @@ class BTCE(Exchange):
             base_currency = base.upper(),
             counter_currency = counter.upper(),
             datetime = BTCEUtil.format_timestamp(trade['timestamp']),
-            order_id = trade['order_id'],
+            order_id = str(trade['order_id']),
             amount = trade['amount'],
             price = trade['rate'],
         )
