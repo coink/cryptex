@@ -22,26 +22,28 @@ class PLCalculator(object):
         return trade_cls(None, base, counter, tx.datetime, None,
                          tx.amount, Decimal('0'))
 
-    def _get_trades(self, market):
+    def _get_trades(self, market, trades, transactions):
         """
         Returns all trades in a particular market along with
         transaction of the base currency, sorted by time.
         """
         base, counter = market
-        trades = [t for t in self.exchange.get_my_trades()
+        trades = [t for t in trades
                   if t.base_currency == base and 
                   t.counter_currency == counter]
-        txs = [t for t in self.exchange.get_my_transactions()
+        txs = [t for t in transactions
                if t.currency == base]
         tx_trades = map(partial(PLCalculator.convert_transaction, market), txs)
 
         all_trades = sorted(trades + tx_trades, key=lambda x: x.datetime)
         return all_trades
 
-    def unrealized_pl(self, market):
-        base, counter = market
-        trades = self._get_trades(market)
+    def get_markets(self, trades):
+        return set([(t.base_currency, t.counter_currency) for t in trades])
 
+    @staticmethod
+    def calculate_pl(market, trades):
+        base, counter = market
         acc = []
         for trade in trades:
             if isinstance(trade, Buy):
@@ -60,3 +62,21 @@ class PLCalculator(object):
                                     None, buy_amount, oldest_buy.price) 
                     acc.append(new_trade)
         return acc
+
+    def unrealized_pl(self, market=None):
+        all_trades = self.exchange.get_my_trades()
+        all_transactions = self.exchange.get_my_transactions()
+        markets = self.get_markets(all_trades)
+
+        result = {}
+        for m in markets:
+            trades = self._get_trades(m, all_trades, all_transactions)
+            result[m] = PLCalculator.calculate_pl(m, trades)
+
+        if market is None:
+            return result
+        else:
+            try:
+                return result[market]
+            except KeyError:
+                return [] 
